@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de correos ZKTeco</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 30px; background: #f4f4f9; }
+  h2 { color: #333; }
+  .container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 600px; margin: auto; }
+  label { display: block; margin-top: 12px; font-weight: bold; }
+  select, input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; }
+  button { margin-top: 15px; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; background: #007bff; color: white; font-weight: bold; }
+  button:hover { background: #0056b3; }
+  .output { margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
+  .copy-buttons { display: flex; gap: 10px; margin-top: 10px; }
+  pre { white-space: pre-line; font-family: inherit; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Generador de correos ZKTeco</h2>
+
+  <label for="tipoCorreo">Tipo de correo:</label>
+  <select id="tipoCorreo">
+    <option value="reset">Reset de Licencia</option>
+    <!-- Aquí podrás agregar más tipos en el futuro -->
+  </select>
+
+  <label for="software">Software:</label>
+  <select id="software">
+    <option>ZKBio CVAccess</option>
+    <option>ZKBio CVSecurity</option>
+    <option>ZKBioSecurity</option>
+    <option>ZKTime Net 3.0</option>
+    <option>BioTime Pro</option>
+  </select>
+
+  <label for="sucursal">Sucursal:</label>
+  <select id="sucursal">
+    <option>MTY</option>
+    <option>SNC</option>
+    <option>AZC</option>
+    <option>IZT</option>
+    <option>GDL</option>
+    <option>ZAP</option>
+    <option>CUN</option>
+    <option>CHI</option>
+    <option>CUL</option>
+    <option>HMO</option>
+    <option>BJX</option>
+    <option>MID</option>
+    <option>PUE</option>
+    <option>QRO</option>
+    <option>SLP</option>
+    <option>TIJ</option>
+    <option>TOL</option>
+    <option>TOR</option>
+    <option>VER</option>
+    <option>VSA</option>
+  </select>
+
+  <label for="licenciaID">ID de licencia:</label>
+  <input type="number" id="licenciaID" placeholder="Ej. 123456" min="0" oninput="validarNumeros(this)">
+
+  <label for="motivo">Motivo (opcional):</label>
+  <textarea id="motivo" rows="3" placeholder="Ej. el disco duro del cliente se dañó..."></textarea>
+
+  <button onclick="generarCorreo()">Generar correo</button>
+
+  <div class="output" id="resultado" style="display:none;">
+    <h3>Resultado:</h3>
+    <p><strong>Asunto:</strong></p>
+    <pre id="asuntoTexto"></pre>
+    <p><strong>Cuerpo:</strong></p>
+    <pre id="cuerpoTexto"></pre>
+
+    <div class="copy-buttons">
+      <button onclick="copiarAsunto()">Copiar Asunto</button>
+      <button onclick="copiarCuerpo()">Copiar Cuerpo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// Evita caracteres no numéricos
+function validarNumeros(input) {
+  input.value = input.value.replace(/[^0-9]/g, '');
+}
+
+function generarCorreo() {
+  const tipo = document.getElementById("tipoCorreo").value;
+  const software = document.getElementById("software").value;
+  let sucursal = document.getElementById("sucursal").value;
+  if (sucursal === "custom" && nueva) sucursal = nueva;
+  const id = document.getElementById("licenciaID").value.trim();
+  const motivo = document.getElementById("motivo").value.trim();
+
+  if (!software || !sucursal || !id) {
+    alert("Por favor llena los campos obligatorios (software, sucursal, ID).");
+    return;
+  }
+
+  const asunto = `Reset de Licencia - ${software} (${sucursal}) ${id}`;
+  let cuerpo = `Buen dia\n\nPor medio de este correo les solicitamos aplicar reset a la licencia adjunta para el software ${software}.`;
+
+  if (motivo) {
+    cuerpo = `Buen dia\n\nPor medio de este correo les solicitamos aplicar reset a la licencia adjunta para el software ${software}, ${motivo}.\n\nSin más por el momento, quedamos al pendiente.\nUn saludo.`;
+  } else {
+    cuerpo += `\n\nSin más por el momento, quedamos al pendiente.\nUn saludo.`;
+  }
+
+  // Mostrar resultado
+  document.getElementById("resultado").style.display = "block";
+  document.getElementById("asuntoTexto").textContent = asunto;
+  document.getElementById("cuerpoTexto").textContent = cuerpo;
+
+  // Guardar temporalmente
+  window.asuntoGlobal = asunto;
+  window.cuerpoGlobal = cuerpo;
+}
+
+function copiarAsunto() {
+  navigator.clipboard.writeText(window.asuntoGlobal);
+  alert("Asunto copiado al portapapeles.");
+}
+
+function copiarCuerpo() {
+  navigator.clipboard.writeText(window.cuerpoGlobal);
+  alert("Cuerpo copiado al portapapeles.");
+}
+</script>
+</body>
+</html>
