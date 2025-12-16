@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Toolbox Interno – TVC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+body {
+font-family: Arial, Helvetica, sans-serif;
+margin: 0;
+background: #f4f6f9;
+color: #333;
+}
+header {
+background: #1f2937;
+color: #fff;
+padding: 20px;
+}
+header h1 {
+margin: 0;
+font-size: 22px;
+}
+header p {
+margin: 4px 0 0;
+font-size: 14px;
+opacity: 0.85;
+}
+main {
+padding: 24px;
+}
+.grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+gap: 20px;
+}
+.card {
+background: #ffffff;
+border-radius: 10px;
+padding: 20px;
+box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+cursor: pointer;
+transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover {
+transform: translateY(-4px);
+box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+.card h2 {
+margin: 0 0 10px;
+font-size: 18px;
+}
+.card p {
+margin: 0;
+font-size: 14px;
+line-height: 1.4;
+color: #555;
+}
+footer {
+text-align: center;
+padding: 14px;
+font-size: 12px;
+color: #777;
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Toolbox Interno</h1>
+<p>Accesos rápidos para preventa, ingeniería y soporte</p>
+</header>
+
+
+<main>
+<div class="grid">
+<div class="card" onclick="abrir('https://tvc.mx/products/40467#303919')">
+<h2>📧 Generador de correos</h2>
+<p>Plantillas y asistentes para responder a clientes.</p>
+</div>
+
+
+<div class="card" onclick="abrir('recomendador/index.html')">
+<h2>🔐 Recomendador de equipos</h2>
+<p>Ayuda a seleccionar equipos ZKTeco según el escenario.</p>
+</div>
+
+
+<div class="card" onclick="abrir('guias/index.html')">
+<h2>📘 Guías técnicas</h2>
+<p>Documentación rápida de compatibilidad y uso.</p>
+</div>
+
+
+<div class="card" onclick="abrir('videos/index.html')">
+<h2>🎥 Videos y capacitaciones</h2>
+<p>Acceso a materiales de apoyo y talleres.</p>
+</div>
+</div>
+</main>
+<script>
+function abrir(url) {
+  window.open(url, '_blank'); // Abre la URL en una nueva pestaña
+}
+</script>
+
+<footer>
+Toolbox interno · Uso exclusivo interno
+</html>
