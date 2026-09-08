@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recomendador ZKTeco · Control de Acceso y Asistencia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2f4;
+  --panel:#ffffff;
+  --ink:#16283a;
+  --ink-soft:#54697b;
+  --ink-faint:#8ea0af;
+  --line:#dbe3e8;
+  --line-strong:#c3ced5;
+  --accent:#0e8a8c;
+  --accent-ink:#075c5e;
+  --accent-soft:#e2f3f2;
+  --amber:#d98c2b;
+  --amber-soft:#fbf0dd;
+  --good:#1e8f5f;
+  --good-soft:#e5f5ed;
+  --bad:#c1493a;
+  --bad-soft:#fbeae7;
+  --radius:10px;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0; overflow-x:hidden; max-width:100vw;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:28px 28px;
+  background-attachment:fixed;
+}
+
+/* ---------- HEADER ---------- */
+header.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--ink);
+  color:#fff;
+  padding:14px 28px;
+  display:flex; align-items:center; justify-content:space-between; gap:20px;
+  flex-wrap:wrap;
+  border-bottom:3px solid var(--accent);
+}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand-mark{
+  width:38px;height:38px;border-radius:8px;
+  background:radial-gradient(circle at 30% 30%, var(--accent) 0%, var(--accent-ink) 70%);
+  display:flex;align-items:center;justify-content:center;
+  position:relative; overflow:hidden;
+  flex:none;
+}
+.brand-mark svg{width:22px;height:22px;}
+.brand-text h1{
+  font-family:var(--font-display);
+  font-size:17px; font-weight:600; margin:0; letter-spacing:.2px;
+}
+.brand-text p{margin:0; font-size:11.5px; color:#a9bcc7; font-family:var(--font-mono); letter-spacing:.3px;}
+.topbar-actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.count-pill{
+  font-family:var(--font-mono); font-size:12px; color:#cfe3e2;
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
+  padding:6px 12px; border-radius:20px;
+}
+.count-pill b{color:#fff;}
+/* ---------- LAYOUT ---------- */
+.layout{
+  display:grid;
+  grid-template-columns:340px minmax(0, 1fr);
+  gap:24px;
+  max-width:1440px;
+  margin:0 auto;
+  padding:24px;
+  align-items:start;
+}
+.layout > main{min-width:0; max-width:100%;}
+@media (max-width:920px){
+  .layout{grid-template-columns:1fr;}
+}
+
+/* ---------- FILTER PANEL ---------- */
+aside.filters{
+  position:sticky; top:78px;
+  background:var(--panel);
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  overflow:hidden;
+  max-height:calc(100vh - 100px);
+  display:flex; flex-direction:column;
+}
+.filters-head{
+  padding:16px 18px 12px;
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; justify-content:space-between;
+}
+.filters-head h2{
+  font-family:var(--font-display); font-size:14px; margin:0;
+  text-transform:uppercase; letter-spacing:.6px;
+}
+#resetBtn{
+  border:none; background:none; color:var(--accent-ink);
+  font-family:var(--font-mono); font-size:11px; cursor:pointer;
+  text-decoration:underline; padding:0;
+}
+.filters-body{
+  overflow-y:auto; overflow-x:hidden; padding:6px 18px 18px;
+}
+.filters-body::-webkit-scrollbar{width:8px;}
+.filters-body::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:4px;}
+
+.f-group{padding:14px 0; border-bottom:1px solid var(--line);}
+.f-group:last-child{border-bottom:none;}
+.f-group-title{
+  font-family:var(--font-mono); font-size:10.5px; letter-spacing:.8px;
+  color:var(--ink-faint); text-transform:uppercase; margin:0 0 10px;
+  display:flex; align-items:center; gap:6px;
+}
+.f-group-title .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none;}
+
+.opt-row{display:flex; flex-wrap:wrap; gap:6px;}
+.chip{
+  border:1px solid var(--line-strong);
+  background:#fbfcfd;
+  color:var(--ink-soft);
+  font-size:12px; font-family:var(--font-body); font-weight:500;
+  padding:6px 11px; border-radius:20px; cursor:pointer;
+  transition:.12s; user-select:none;
+}
+.chip:hover{border-color:var(--accent);}
+.chip.active{
+  background:var(--accent); border-color:var(--accent); color:#fff;
+}
+.chip.active.multi{background:var(--accent-ink); border-color:var(--accent-ink);}
+
+.range-row{display:flex; align-items:center; gap:10px;}
+.range-row input[type=range]{flex:1; accent-color:var(--accent);}
+.sub-filter{
+  margin-top:10px; padding:10px 10px 4px; border-left:2px solid var(--accent);
+  background:var(--accent-soft); border-radius:0 8px 8px 0;
+}
+.sub-filter .f-group-title{margin-bottom:8px;}
+.range-val{
+  font-family:var(--font-mono); font-size:12.5px; background:var(--accent-soft);
+  color:var(--accent-ink); padding:3px 8px; border-radius:6px; min-width:64px; text-align:center;
+}
+
+select.f-select{
+  width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--line-strong);
+  font-family:var(--font-body); font-size:12.5px; color:var(--ink); background:#fbfcfd;
+}
+
+/* Tooltips con retardo: aparecen tras ~0.6s de mouse encima, para no saturar la vista */
+[data-tip]{position:relative;}
+[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute; bottom:calc(100% + 9px); left:0;
+  background:var(--ink); color:#e9eef1; font-family:var(--font-body); font-weight:400;
+  font-size:11.5px; line-height:1.35; text-transform:none; letter-spacing:normal;
+  padding:8px 10px; border-radius:7px; width:210px;
+  opacity:0; transform:translateY(4px); pointer-events:none;
+  transition:opacity .15s ease, transform .15s ease; transition-delay:0s;
+  z-index:30; box-shadow:0 8px 20px -8px rgba(22,40,58,.5);
+}
+[data-tip]:hover::after{
+  opacity:1; transform:translateY(0);
+  transition-delay:.6s;
+}
+
+.filters-foot{
+  padding:12px 18px; border-top:1px solid var(--line);
+  font-size:11px; font-family:var(--font-mono); color:var(--ink-faint);
+  background:#fafbfc;
+}
+.legend{display:flex; gap:14px; flex-wrap:wrap;}
+.legend span{display:flex; align-items:center; gap:5px;}
+.legend .sw{width:9px;height:9px;border-radius:2px;}
+
+/* ---------- RESULTS ---------- */
+.results-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:14px; flex-wrap:wrap; gap:10px;
+}
+.results-head h2{
+  font-family:var(--font-display); font-size:20px; margin:0;
+}
+.results-head p{margin:2px 0 0; font-size:12.5px; color:var(--ink-soft);}
+.sort-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft); font-family:var(--font-mono);}
+.sort-row select{border:1px solid var(--line-strong); border-radius:6px; padding:5px 8px; font-family:var(--font-mono); font-size:12px; background:#fff;}
+
+.equipos-box{
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  background:#f4f6f7;
+  padding:16px;
+  min-width:0;
+  max-width:100%;
+}
+
+.grid-cards{
+  display:flex;
+  gap:18px;
+  overflow-x:auto;
+  overflow-y:visible;
+  padding-bottom:10px;
+  align-items:flex-start;
+  scrollbar-width:thin;
+  scrollbar-color:var(--line-strong) transparent;
+}
+.grid-cards::-webkit-scrollbar{height:9px;}
+.grid-cards::-webkit-scrollbar-track{background:transparent;}
+.grid-cards::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:5px;}
+.grid-cards::-webkit-scrollbar-thumb:hover{background:var(--ink-faint);}
+
+.card{
+  position:relative;
+  background:var(--panel);
+  border:1px solid var(--line-strong);
+  border-radius:var(--radius);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+  transition:transform .15s, box-shadow .15s;
+  flex:0 0 308px;
+  width:308px;
+  /* Sin límite de altura: cada bloque de información se apila normalmente y la tarjeta
+     crece lo que necesite, en vez de recortar el contenido con scroll interno. */
+}
+.card:hover{transform:translateY(-2px); box-shadow:0 10px 24px -12px rgba(22,40,58,.35);}
+.card.dimmed{opacity:.38; filter:grayscale(.5);}
+
+.card-image-link{
+  display:block; position:relative; width:100%; aspect-ratio:1/1;
+  background:linear-gradient(135deg, #eef3f4, #e3ecec);
+  border-bottom:1px solid var(--line);
+  flex:none;
+}
+.card-image-link .placeholder-icon{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  color:var(--ink-faint);
+}
+.card-image-link .placeholder-icon svg{width:54px; height:54px; opacity:.45;}
+.card-image-link img{
+  position:relative; z-index:1;
+  width:100%; height:100%; object-fit:contain; padding:14px;
+  transition:.15s;
+}
+.card-image-link:hover img{transform:scale(1.03);}
+.card-image-link .zoom-tag{
+  position:absolute; bottom:8px; right:8px; z-index:2;
+  font-family:var(--font-mono); font-size:9.5px; letter-spacing:.3px;
+  background:rgba(22,40,58,.78); color:#fff; padding:3px 7px; border-radius:5px;
+  opacity:0; transition:opacity .15s;
+}
+.card-image-link:hover .zoom-tag{opacity:1;}
+
+.card-scroll-body{flex:1; display:flex; flex-direction:column;}
+
+.card-scan{
+  position:relative; height:3px; width:100%;
+  background:linear-gradient(90deg, transparent, var(--accent), transparent);
+  background-size:200% 100%;
+  animation:scan 2.8s linear infinite;
+}
+@keyframes scan{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+.card-head{
+  padding:16px 18px 12px;
+  border-bottom:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+}
+.card-id{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); letter-spacing:.3px;}
+.card-model{font-family:var(--font-display); font-size:17px; font-weight:600; margin:2px 0 3px;}
+.match-badge{
+  font-family:var(--font-mono); font-size:11px; text-align:right; flex:none;
+  color:var(--good); font-weight:600;
+}
+.match-badge small{display:block; font-weight:400; color:var(--ink-faint); font-size:9.5px;}
+.match-badge.partial{color:var(--amber);}
+
+.env-icons{display:flex; gap:6px; margin-top:8px;}
+.env-icon{
+  width:24px;height:24px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--line); color:var(--ink-faint);
+  font-size:12px;
+  transition:box-shadow .2s, transform .2s;
+  overflow:hidden;
+}
+.env-icon img{width:16px; height:16px; object-fit:contain; display:block;}
+.env-icon-fallback{line-height:1;}
+.env-icon.on{background:var(--accent-soft); color:var(--accent-ink);}
+.env-icon.hot{
+  background:var(--accent); color:#fff;
+  box-shadow:0 0 0 3px var(--accent-soft), 0 0 10px -1px var(--accent);
+  animation:iconPulse 1.6s ease-in-out infinite;
+}
+@keyframes iconPulse{
+  0%, 100%{transform:scale(1);}
+  50%{transform:scale(1.12);}
+}
+
+.card-body{padding:14px 18px; flex:1; display:flex; flex-direction:column; gap:12px;}
+
+.spec-block h4{
+  margin:0 0 7px; font-family:var(--font-mono); font-size:10px; letter-spacing:.6px;
+  text-transform:uppercase; color:var(--ink-faint);
+}
+.spec-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px 10px;}
+.spec-item{
+  display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center;
+  gap:2px 8px;
+  font-size:12px; padding:5px 8px; border-radius:6px; background:#f6f8f9;
+  border:1px solid transparent;
+  min-width:0; /* evita que un valor largo desborde su celda del grid */
+}
+.spec-item .k{color:var(--ink-soft);}
+.spec-item .v{font-family:var(--font-mono); font-weight:600; text-align:right; overflow-wrap:break-word; word-break:break-word;}
+
+.spec-battery-row{
+  grid-column:1 / -1;
+  display:grid; grid-template-columns:1fr 1fr; gap:6px 10px;
+}
+.spec-item.yes{color:var(--good);}
+.spec-item.no{color:var(--ink-faint);}
+.spec-item.matched{border-color:var(--accent); background:var(--accent-soft);}
+
+.badge-row{display:flex; flex-wrap:wrap; gap:6px;}
+.tagpill{
+  font-size:11px; font-family:var(--font-mono); padding:4px 9px; border-radius:14px;
+  background:var(--good-soft); color:var(--good); border:1px solid transparent;
+}
+.tagpill.off{background:var(--bad-soft); color:var(--bad);}
+.tagpill.neutral{background:#eef1f3; color:var(--ink-soft);}
+
+.sw-list{display:flex; flex-direction:column; gap:5px;}
+.sw-row{
+  display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center;
+  gap:5px 8px;
+  font-size:11.5px; padding:6px 9px; background:#f6f8f9; border-radius:6px;
+}
+.sw-row .name{font-weight:600;}
+.sw-row .meta{font-family:var(--font-mono); color:var(--ink-faint); font-size:10.5px;}
+.sw-badge{
+  flex:0 0 100%;
+  background:var(--amber-soft); color:var(--amber);
+  font-weight:600;
+  cursor:help;
+}
+
+.lector-warning{
+  display:flex; gap:9px; align-items:flex-start;
+  background:var(--amber-soft); border:1px solid var(--amber);
+  border-radius:8px; padding:10px 12px; margin:2px 0;
+}
+.lector-warning-icon{color:var(--amber); font-size:14px; line-height:1.3; flex:none;}
+.lector-warning strong{
+  display:block; font-family:var(--font-mono); font-size:10px; text-transform:uppercase;
+  letter-spacing:.4px; color:var(--amber); margin-bottom:2px;
+}
+.lector-warning span{font-size:12px; color:#7a5313; line-height:1.4;}
+
+.card-foot{
+  padding:12px 18px; border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  background:#fafbfc;
+}
+.card-foot .ip-badge{
+  font-family:var(--font-mono); font-size:11px; font-weight:700;
+  color:var(--accent-ink); background:var(--accent-soft); padding:4px 9px; border-radius:6px;
+}
+.card-foot .ip-badge.none{color:var(--ink-faint); background:#eef1f3;}
+.card-foot button{
+  border:none; background:var(--ink); color:#fff; font-family:var(--font-mono);
+  font-size:11.5px; padding:7px 13px; border-radius:7px; cursor:pointer;
+}
+.card-foot button:hover{background:var(--accent-ink);}
+
+.empty-state{
+  flex:1 1 100%; width:100%; text-align:center; padding:60px 20px; color:var(--ink-soft);
+}
+.empty-state h3{font-family:var(--font-display); font-size:18px; margin:0 0 6px; color:var(--ink);}
+.empty-state p{font-size:13px; margin:0;}
+
+/* detail panel */
+.overlay{
+  position:fixed; inset:0; background:rgba(22,40,58,.55); z-index:100;
+  display:none; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto;
+}
+.overlay.open{display:flex;}
+.detail{
+  background:#fff; max-width:640px; width:100%; border-radius:12px; overflow:hidden;
+}
+.detail-head{
+  padding:20px 24px; background:var(--ink); color:#fff; position:relative;
+}
+.detail-head button{
+  position:absolute; top:14px; right:16px; background:none; border:none; color:#fff;
+  font-size:20px; cursor:pointer; line-height:1;
+}
+.detail-head h3{font-family:var(--font-display); margin:4px 0 4px; font-size:20px;}
+.detail-body{padding:22px 24px; display:flex; flex-direction:column; gap:18px;}
+
+footer.pagefoot{
+  max-width:1440px; margin:10px auto 40px; padding:0 24px;
+  font-size:11.5px; color:var(--ink-faint); font-family:var(--font-mono);
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C7 2 3 4.5 3 8v4c0 5 4 8.5 9 10 5-1.5 9-5 9-10V8c0-3.5-4-6-9-6z" stroke="#fff" stroke-width="1.6"/><path d="M8.5 12a3.5 3.5 0 1 1 7 0c0 2-1 3.4-1 5" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><path d="M12 8.5v7" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>
+    </div>
+    <div class="brand-text">
+      <h1>Recomendador ZKTeco</h1>
+      <p>CONTROL DE ACCESO &amp; ASISTENCIA · TABLA MAESTRA</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <span class="count-pill">Catálogo cargado: <b id="catalogCount">0</b> equipos</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="filters">
+    <div class="filters-head">
+      <h2>Filtros del proyecto</h2>
+      <button id="resetBtn">Limpiar todo</button>
+    </div>
+    <div class="filters-body" id="filtersBody">
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Define si el equipo se usará para abrir puertas, para checar asistencia de personal, o ambas cosas a la vez."><span class="dot"></span>Uso previsto</p>
+        <div class="opt-row" data-filter="uso" data-mode="single">
+          <button class="chip active" data-value="" data-tip="No filtra por tipo de uso; muestra equipos de acceso y de asistencia por igual.">Cualquiera</button>
+          <button class="chip" data-value="Acceso" data-tip="Equipos pensados para abrir puertas, torniquetes o barreras controladas.">Control de acceso</button>
+          <button class="chip" data-value="Asistencia" data-tip="Equipos pensados para registrar entradas y salidas de personal (checador).">Control de asistencia</button>
+          <button class="chip" data-value="Ambos" data-tip="Equipos que combinan control de acceso y asistencia en un mismo dispositivo.">Ambos (nativo + alterno)</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Indica si el equipo se instalará expuesto al clima (exterior) o resguardado (interior)."><span class="dot"></span>Entorno de instalación</p>
+        <div class="opt-row" data-filter="exterior" data-mode="single">
+          <button class="chip active" data-value="" data-tip="Muestra equipos de interior y de exterior sin distinción.">Cualquiera</button>
+          <button class="chip" data-value="No" data-tip="Pensado para espacios cerrados, sin protección especial contra clima.">Interior</button>
+          <button class="chip" data-value="Si" data-tip="Resistente a intemperie: lluvia, polvo y variaciones de temperatura.">Exterior (IP resistente)</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Filtra según si el equipo necesita conectarse por WiFi o por cable de red."><span class="dot"></span>Conectividad WiFi</p>
+        <div class="opt-row" data-filter="wifi" data-mode="single">
+          <button class="chip active" data-value="" data-tip="No filtra por tipo de conectividad de red.">Indiferente</button>
+          <button class="chip" data-value="Si" data-tip="Se conecta de forma inalámbrica; útil donde no hay cableado de red cercano.">Requiere WiFi</button>
+          <button class="chip" data-value="No" data-tip="Se conecta por cable Ethernet; recomendable para instalaciones más estables.">Sin WiFi</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Filtra equipos con batería interna, para que sigan operando ante un corte de energía."><span class="dot"></span>Batería de respaldo</p>
+        <div class="opt-row" data-filter="bateria" data-mode="single">
+          <button class="chip active" data-value="" data-tip="No filtra por batería de respaldo.">Indiferente</button>
+          <button class="chip" data-value="Si" data-tip="Sigue funcionando un tiempo aunque se corte la energía eléctrica.">Con batería</button>
+          <button class="chip" data-value="No" data-tip="Depende completamente de la energía eléctrica del sitio.">Sin batería</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Filtra equipos que se alimentan por el mismo cable de red (Power over Ethernet), sin necesitar un cable eléctrico aparte."><span class="dot"></span>Alimentación PoE</p>
+        <div class="opt-row" data-filter="poe" data-mode="single">
+          <button class="chip active" data-value="" data-tip="No filtra por tipo de alimentación eléctrica.">Indiferente</button>
+          <button class="chip" data-value="Si" data-tip="Recibe energía por el mismo cable de red; solo necesitas un cable hasta el equipo.">Con PoE</button>
+          <button class="chip" data-value="No" data-tip="Requiere una toma de corriente eléctrica independiente cerca del equipo.">Sin PoE</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Filtra equipos con chip celular integrado, para sitios sin red fija ni WiFi disponible."><span class="dot"></span>Chip celular (4G)</p>
+        <div class="opt-row" data-filter="celular" data-mode="single">
+          <button class="chip active" data-value="" data-tip="No filtra por conectividad celular.">Indiferente</button>
+          <button class="chip" data-value="Si" data-tip="Se conecta usando una red celular (SIM/4G); ideal para sitios remotos sin red ni WiFi.">Con chip celular</button>
+          <button class="chip" data-value="No" data-tip="Depende de la red del sitio (cableada o WiFi).">Sin chip celular</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Selecciona los métodos de verificación biométrica que el cliente necesita. Puedes elegir más de uno."><span class="dot"></span>Verificación biométrica requerida</p>
+        <div class="opt-row" data-filter="bio" data-mode="multi">
+          <button class="chip" data-value="rostro" data-tip="Identifica a la persona por reconocimiento facial.">Rostro</button>
+          <button class="chip" data-value="huella" data-tip="Identifica a la persona por su huella dactilar.">Huella</button>
+          <button class="chip" data-value="palma" data-tip="Identifica a la persona por la geometría o venas de la palma de la mano.">Palma</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Selecciona los métodos de credencial adicionales al biométrico que el proyecto requiere."><span class="dot"></span>Credenciales requeridas</p>
+        <div class="opt-row" data-filter="cred" data-mode="multi">
+          <button class="chip" data-value="tarjeta" data-tip="Acceso mediante tarjeta o llavero de proximidad (RFID).">Tarjeta RFID</button>
+          <button class="chip" data-value="pin" data-tip="Acceso mediante un código numérico personal (PIN).">PIN</button>
+          <button class="chip" data-value="qr" data-tip="Acceso mediante un código QR generado desde una app o visita.">Código QR</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Solo aplica si el proyecto necesita una tecnología de tarjeta específica, por ejemplo por compatibilidad con tarjetas que el cliente ya tiene."><span class="dot"></span>Tecnología de tarjeta</p>
+        <div class="opt-row" data-filter="frecuencia" data-mode="single">
+          <button class="chip active" data-value="" data-tip="No filtra por tecnología de tarjeta.">Cualquiera</button>
+          <button class="chip" data-value="125" data-tip="Tarjetas de proximidad EM/ID de baja frecuencia; las más comunes y económicas.">125 kHz (EM/ID)</button>
+          <button class="chip" data-value="13.56" data-tip="Tarjetas Mifare/IC de alta frecuencia; más seguras, típicas en control de acceso corporativo.">13.56 MHz (Mifare/IC)</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Filtra equipos que soporten al menos esta cantidad de usuarios enrolados. En el extremo derecho se agrupan todos los equipos de alta capacidad."><span class="dot"></span>Usuarios mínimos a soportar</p>
+        <div class="range-row">
+          <input type="range" id="usuariosRange" min="0" max="15000" step="500" value="0">
+          <span class="range-val" id="usuariosVal">0</span>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Componentes físicos que el proyecto necesita conectar directamente al equipo (cerradura, sensores, otros paneles, etc.). Puedes elegir varios."><span class="dot"></span>Interfaz de hardware requerida</p>
+        <div class="opt-row" data-filter="iface" data-mode="multi">
+          <button class="chip" data-value="Relé" data-tip="Salida para controlar directamente una chapa o cerradura eléctrica.">Relé</button>
+          <button class="chip" data-value="Botón salida" data-tip="Entrada para un botón físico que libera la puerta desde adentro.">Botón salida</button>
+          <button class="chip" data-value="Sensor puerta" data-tip="Entrada para detectar si la puerta está abierta o cerrada.">Sensor de puerta</button>
+          <button class="chip" data-value="Entrada alarma" data-tip="Entrada para recibir una señal de un sistema de alarma externo.">Entrada alarma</button>
+          <button class="chip" data-value="Salida alarma" data-tip="Salida para disparar una sirena o notificación de alarma.">Salida alarma</button>
+          <button class="chip" data-value="Wiegand" data-tip="Puerto estándar para conectar lectoras o controladoras de terceros.">Wiegand</button>
+          <button class="chip" data-value="RS485" data-tip="Puerto para enlazar varios dispositivos en una misma línea de datos a larga distancia.">RS485</button>
+          <button class="chip" data-value="RS232" data-tip="Puerto serial para conexión directa punto a punto con una PC u otro equipo.">RS232</button>
+          <button class="chip" data-value="Entradas auxiliares" data-tip="Entradas adicionales para sensores u otros dispositivos extra del proyecto.">Entradas aux.</button>
+          <button class="chip" data-value="Salidas auxiliares" data-tip="Salidas adicionales para controlar dispositivos extra del proyecto.">Salidas aux.</button>
+        </div>
+        <div class="sub-filter" id="puertasSubFilter" style="display:none;">
+          <p class="f-group-title" data-tip="Cantidad mínima de puertas que el equipo debe poder controlar. Útil para paneles con más de un relevador.">Puertas por equipo</p>
+          <div class="range-row">
+            <input type="range" id="puertasRange" min="1" max="4" step="1" value="1">
+            <span class="range-val" id="puertasVal">1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Forma en que el equipo envía o recibe información con el software: por evento inmediato o por consulta periódica."><span class="dot"></span>Protocolo de comunicación</p>
+        <div class="opt-row" data-filter="protocolo" data-mode="multi">
+          <button class="chip" data-value="PUSH" data-tip="El equipo envía la información al software en tiempo real, sin esperar a que se le pregunte.">PUSH</button>
+          <button class="chip" data-value="PULL" data-tip="El software consulta al equipo periódicamente para traer la información.">PULL</button>
+          <button class="chip" data-value="BEST" data-tip="Protocolo optimizado de ZKTeco para sincronización eficiente con la nube.">BEST</button>
+        </div>
+      </div>
+
+      <div class="f-group">
+        <p class="f-group-title" data-tip="Filtra los equipos que ya tienen compatibilidad comprobada con el software que el cliente usará o planea usar."><span class="dot"></span>Software objetivo</p>
+        <select class="f-select" id="softwareSelect" data-filter="software">
+          <option value="">Cualquiera</option>
+        </select>
+      </div>
+
+    </div>
+    <div class="filters-foot">
+      <div class="legend">
+        <span><i class="sw" style="background:var(--accent)"></i>Cumple filtro activo</span>
+        <span><i class="sw" style="background:var(--line)"></i>No aplica al filtro</span>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="results-head">
+      <div>
+        <h2 id="resultsTitle">Equipos recomendados</h2>
+        <p id="resultsSub">Ajusta los filtros para acotar el catálogo según el proyecto del cliente.</p>
+      </div>
+      <div class="sort-row">
+        Ordenar por
+        <select id="sortSelect">
+          <option value="match">Mejor coincidencia</option>
+          <option value="usuarios_desc">Usuarios (mayor a menor)</option>
+          <option value="usuarios_asc">Usuarios (menor a mayor)</option>
+          <option value="modelo">Modelo (A-Z)</option>
+        </select>
+      </div>
+    </div>
+    <div class="equipos-box">
+      <div class="grid-cards" id="grid"></div>
+    </div>
+  </main>
+</div>
+
+<footer class="pagefoot">
+  Fuente de datos: hojas "Equipos", "Interfaz_Acceso", "Comunicacion", "Software" y "Compatibilidad" de la Tabla Maestra ZKTeco. Usa "Actualizar tabla maestra" para recargar el catálogo sin tocar el código.
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="detail">
+    <div class="detail-head">
+      <button id="closeDetail">×</button>
+      <span class="card-id" id="detId" style="color:#a9bcc7;"></span>
+      <h3 id="detModel"></h3>
+      <span class="card-family" id="detFamily"></span>
+    </div>
+    <div class="detail-body" id="detBody"></div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   MODELO DE DATOS
+   Estructura esperada del .xlsx (hojas y encabezados EXACTOS):
+   - Equipos: ID, Marca, Modelo, Familia, Usuarios, Rostros, Huellas, Palmas,
+     Tarjetas, Frecuencia, PIN, QR, Eventos, Exterior, Índice de Protección, WiFi,
+     Batería de respaldo, Capacidad batería, Duración, PoE, Chip celular
+     (Imagen y Enlace son opcionales — ver nota más abajo)
+   - Interfaz_Acceso: ID Equipo, Relé, Cantidad de puertas, Botón salida, Sensor puerta,
+     Entrada alarma, Salida alarma, Wiegand, RS485, RS232,
+     Entradas auxiliares, Salidas auxiliares, Requiere Lector o Módulo
+   - Comunicacion: ID Equipo, PUSH, BEST, PULL, Tipo nativo,
+     Puede cambiar tipo, Tipo alternativo
+   - Software: ID Software, Software, Módulo, Nivel, Observaciones
+   - Compatibilidad: ID Equipo, ID Software, Protocolo,
+     Tipo de dispositivo en software, Nivel, Punto asistencia
+   Para agregar más equipos: llena una fila nueva en cada hoja pertinente del
+   Tabla_Maestra_ZKTeco.xlsx y luego genera/reemplaza catalogo_zkteco.json con
+   "convertidor.html" — ver la sección de carga automática más abajo para el detalle.
+   ========================================================================= */
+
+const DEFAULT_WORKBOOK_JSON = {
+  Equipos: [
+    {"ID":"ZKT0810095","Marca":"ZKTeco","Modelo":"MB360 Plus","Familia":"MB","Usuarios":2000,"Rostros":1500,"Huellas":2000,"Palmas":null,"Tarjetas":2000,"Frecuencia":"ID (125 kHz)","PIN":2000,"QR":null,"Eventos":100000,"Exterior":"No","Índice de Protección":null,"WiFi":"No"},
+    {"ID":"ZKT0810086","Marca":"ZKTeco","Modelo":"SpeedFace-V5L P WiFi","Familia":"SpeedFace","Usuarios":10000,"Rostros":6000,"Huellas":6000,"Palmas":null,"Tarjetas":10000,"Frecuencia":"ID (125 kHz)","PIN":10000,"QR":"Si","Eventos":200000,"Exterior":"No","Índice de Protección":null,"WiFi":"Si"},
+    {"ID":"ZTA0610006","Marca":"ZKTeco","Modelo":"ProFace-X","Familia":"ProFace","Usuarios":50000,"Rostros":30000,"Huellas":null,"Palmas":null,"Tarjetas":50000,"Frecuencia":"ID (125 kHz)","PIN":50000,"QR":"Si","Eventos":1000000,"Exterior":"Si","Índice de Protección":"IP68","WiFi":"No"}
+  ],
+  Interfaz_Acceso: [
+    {"ID Equipo":"ZKT0810095","Relé":"Si","Botón salida":"Si","Sensor puerta":"No","Entrada alarma":"No","Salida alarma":"Si","Wiegand":"No","RS485":"No","RS232":"Si","Entradas auxiliares":"No","Salidas auxiliares":"No"},
+    {"ID Equipo":"ZKT0810086","Relé":"Si","Botón salida":"Si","Sensor puerta":"Si","Entrada alarma":"No","Salida alarma":"Si","Wiegand":"Si","RS485":"Si","RS232":"Si","Entradas auxiliares":"Si","Salidas auxiliares":"No"},
+    {"ID Equipo":"ZTA0610006","Relé":"Si","Botón salida":"Si","Sensor puerta":"Si","Entrada alarma":"No","Salida alarma":"Si","Wiegand":"Si","RS485":"Si","RS232":"Si","Entradas auxiliares":"Si","Salidas auxiliares":"No"}
+  ],
+  Comunicacion: [
+    {"ID Equipo":"ZKT0810095","PUSH":"Si","BEST":null,"PULL":"Si","Tipo nativo":"Asistencia","Puede cambiar tipo":"No","Tipo alternativo":null},
+    {"ID Equipo":"ZKT0810086","PUSH":"Si","BEST":null,"PULL":"No","Tipo nativo":"Acceso","Puede cambiar tipo":"Si","Tipo alternativo":"Asistencia"},
+    {"ID Equipo":"ZTA0610006","PUSH":"Si","BEST":null,"PULL":"No","Tipo nativo":"Acceso","Puede cambiar tipo":"Si","Tipo alternativo":"Asistencia"}
+  ],
+  Software: [
+    {"ID Software":"SW001","Software":"BioTime Pro","Módulo":"Asistencia","Nivel":"Avanzada","Observaciones":"PUSH"},
+    {"ID Software":"SW002","Software":"BioTime Cloud","Módulo":"Asistencia","Nivel":"Avanzada","Observaciones":"PUSH / BEST"},
+    {"ID Software":"SW003","Software":"ZKBio CVAccess","Módulo":"Asistencia","Nivel":"Básica","Observaciones":"PUSH / PULL"},
+    {"ID Software":"SW004","Software":"ZKBio CVAccess","Módulo":"Acceso","Nivel":"Avanzada","Observaciones":"PUSH / PULL"},
+    {"ID Software":"SW005","Software":"ZKBio CVSecurity","Módulo":"Asistencia","Nivel":"Básica","Observaciones":"PUSH / PULL"},
+    {"ID Software":"SW006","Software":"ZKBio CVSecurity","Módulo":"Acceso","Nivel":"Avanzada","Observaciones":"PUSH / PULL"},
+    {"ID Software":"SW007","Software":"ZKBio Zlink","Módulo":"Asistencia","Nivel":"Básica","Observaciones":"BEST"},
+    {"ID Software":"SW008","Software":"ZKBio Zlink","Módulo":"Acceso","Nivel":"Básica","Observaciones":"BEST"}
+  ],
+  Compatibilidad: [
+    {"ID Equipo":"ZKT0810095","ID Software":"SW001","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Avanzada","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810095","ID Software":"SW002","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Avanzada","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810095","ID Software":"SW003","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Básica","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810095","ID Software":"SW005","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Básica","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810086","ID Software":"SW001","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Avanzada","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810086","ID Software":"SW002","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Avanzada","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810086","ID Software":"SW003","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Básica","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810086","ID Software":"SW004","Protocolo":"PUSH","Tipo de dispositivo en software":"Acceso","Nivel":"Avanzada","Punto asistencia":"Si"},
+    {"ID Equipo":"ZKT0810086","ID Software":"SW005","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Básica","Punto asistencia":"No"},
+    {"ID Equipo":"ZKT0810086","ID Software":"SW006","Protocolo":"PUSH","Tipo de dispositivo en software":"Acceso","Nivel":"Avanzada","Punto asistencia":"Si"},
+    {"ID Equipo":"ZTA0610006","ID Software":"SW001","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Avanzada","Punto asistencia":"No"},
+    {"ID Equipo":"ZTA0610006","ID Software":"SW002","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Avanzada","Punto asistencia":"No"},
+    {"ID Equipo":"ZTA0610006","ID Software":"SW003","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Básica","Punto asistencia":"No"},
+    {"ID Equipo":"ZTA0610006","ID Software":"SW004","Protocolo":"PUSH","Tipo de dispositivo en software":"Acceso","Nivel":"Avanzada","Punto asistencia":"Si"},
+    {"ID Equipo":"ZTA0610006","ID Software":"SW005","Protocolo":"PUSH","Tipo de dispositivo en software":"Asistencia","Nivel":"Básica","Punto asistencia":"No"},
+    {"ID Equipo":"ZTA0610006","ID Software":"SW006","Protocolo":"PUSH","Tipo de dispositivo en software":"Acceso","Nivel":"Avanzada","Punto asistencia":"Si"}
+  ]
+};
+
+let EQUIPOS = [];      // modelo combinado final
+let SOFTWARE_LIST = []; // catálogo de software para el <select>
+
+const isSi = v => typeof v === 'string' && v.trim().toLowerCase() === 'si' || (typeof v === 'string' && v.trim().toLowerCase() === 'sí');
+const num = v => (v === null || v === undefined || v === '' || Number.isNaN(Number(v))) ? 0 : Number(v);
+
+function buildModel(wb){
+  const equipos = wb.Equipos || [];
+  const interfaz = wb.Interfaz_Acceso || [];
+  const comm = wb.Comunicacion || [];
+  const software = wb.Software || [];
+  const compat = wb.Compatibilidad || [];
+
+  const byId = (arr, key) => Object.fromEntries(arr.map(r => [r[key], r]));
+  const ifaceById = byId(interfaz, 'ID Equipo');
+  const commById = byId(comm, 'ID Equipo');
+  const swById = byId(software, 'ID Software');
+
+  SOFTWARE_LIST = software.map(s => ({ id: s['ID Software'], nombre: s['Software'], modulo: s['Módulo'], nivel: s['Nivel'] }));
+
+  return equipos.map(e => {
+    const id = e.ID;
+    const ifc = ifaceById[id] || {};
+    const cm = commById[id] || {};
+    const swRows = compat.filter(c => c['ID Equipo'] === id).map(c => {
+      const sw = swById[c['ID Software']] || {};
+      return {
+        id: c['ID Software'], nombre: sw['Software'] || c['ID Software'],
+        modulo: c['Tipo de dispositivo en software'] || sw['Módulo'],
+        nivel: c['Nivel'] || sw['Nivel'], protocolo: c['Protocolo'],
+        // "Punto asistencia": dado de alta en el módulo de Acceso del software, permite
+        // jalar sus eventos hacia el módulo de Asistencia sin necesitar un checador aparte.
+        puntoAsistencia: isSi(c['Punto asistencia'])
+      };
+    });
+
+    const usosPosibles = [cm['Tipo nativo']].filter(Boolean);
+    if (isSi(cm['Puede cambiar tipo']) && cm['Tipo alternativo']) usosPosibles.push(cm['Tipo alternativo']);
+
+    return {
+      id, marca: e.Marca, modelo: e.Modelo, familia: e.Familia,
+      // "Imagen" y "Enlace" son columnas OPCIONALES de la hoja Equipos: si no existen en el
+      // .xlsx, se arma una ruta por defecto ("img/<ID>.png") y un enlace de marcador de
+      // posición. Fotos estándar de 300x300 px dentro de la carpeta /img junto al index.html.
+      imagen: e.Imagen || `img/${id}.png`,
+      enlace: e.Enlace || e.URL || '#',
+      usuarios: num(e.Usuarios), rostros: num(e.Rostros), huellas: num(e.Huellas), palmas: num(e.Palmas),
+      tarjetas: num(e.Tarjetas), frecuencia: e.Frecuencia || null,
+      pin: num(e.PIN) > 0, qr: isSi(e.QR), eventos: num(e.Eventos),
+      poe: isSi(e.PoE),
+      celular: isSi(e['Chip celular']),
+      exterior: isSi(e.Exterior), ip: e['Índice de Protección'] || null, wifi: isSi(e.WiFi),
+      bateria: isSi(e['Batería de respaldo']), bateriaCapacidad: e['Capacidad batería'] || null, bateriaDuracion: e['Duración'] || null,
+      interfaz: {
+        'Relé': isSi(ifc['Relé']), 'Botón salida': isSi(ifc['Botón salida']),
+        'Sensor puerta': isSi(ifc['Sensor puerta']), 'Entrada alarma': isSi(ifc['Entrada alarma']),
+        'Salida alarma': isSi(ifc['Salida alarma']), 'Wiegand': isSi(ifc['Wiegand']),
+        'RS485': isSi(ifc['RS485']), 'RS232': isSi(ifc['RS232']),
+        'Entradas auxiliares': isSi(ifc['Entradas auxiliares']), 'Salidas auxiliares': isSi(ifc['Salidas auxiliares'])
+      },
+      // "Cantidad de puertas" solo aplica cuando hay Relé (paneles con más de un relevador
+      // controlan más de una puerta). "Requiere Lector o Módulo" es texto libre para paneles
+      // que por sí solos no pueden leer credenciales ni checar asistencia.
+      puertas: num(ifc['Cantidad de puertas']),
+      requiereLectorModulo: ifc['Requiere Lector o Módulo'] || null,
+      comunicacion: {
+        push: isSi(cm['PUSH']), best: isSi(cm['BEST']), pull: isSi(cm['PULL']),
+        tipoNativo: cm['Tipo nativo'] || null, puedeCambiar: isSi(cm['Puede cambiar tipo']),
+        tipoAlterno: cm['Tipo alternativo'] || null, usosPosibles
+      },
+      software: swRows,
+      raw: e
+    };
+  });
+}
+
+function loadWorkbookJSON(wbJson){
+  EQUIPOS = buildModel(wbJson);
+  populateSoftwareSelect();
+  document.getElementById('catalogCount').textContent = EQUIPOS.length;
+  render();
+}
+
+function populateSoftwareSelect(){
+  const sel = document.getElementById('softwareSelect');
+  sel.innerHTML = '<option value="">Cualquiera</option>';
+  const seen = new Set();
+  SOFTWARE_LIST.forEach(s => {
+    const key = s.nombre + '|' + s.modulo;
+    if (seen.has(key)) return;
+    seen.add(key);
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = `${s.nombre} · ${s.modulo} (${s.nivel})`;
+    sel.appendChild(opt);
+  });
+}
+
+/* =========================== ESTADO DE FILTROS =========================== */
+const state = {
+  uso: '', exterior: '', wifi: '', bateria: '', poe: '', celular: '', frecuencia: '',
+  bio: new Set(), cred: new Set(), iface: new Set(), protocolo: new Set(),
+  usuarios: 0, software: '', puertas: 0
+};
+
+const TOTAL_DETERMINANTES = () => {
+  // cuenta cuántos criterios están activos, para calcular "coincidencia"
+  let n = 0;
+  if (state.uso) n++;
+  if (state.exterior) n++;
+  if (state.wifi) n++;
+  if (state.bateria) n++;
+  if (state.poe) n++;
+  if (state.celular) n++;
+  if (state.frecuencia) n++;
+  n += state.bio.size + state.cred.size + state.iface.size + state.protocolo.size;
+  if (state.usuarios > 0) n++;
+  if (state.software) n++;
+  if (state.iface.has('Relé') && state.puertas > 0) n++;
+  return n;
+};
+
+function cumpleFiltros(eq){
+  const checks = [];
+
+  if (state.uso){
+    if (state.uso === 'Ambos') checks.push(eq.comunicacion.usosPosibles.includes('Acceso') && eq.comunicacion.usosPosibles.includes('Asistencia'));
+    else checks.push(eq.comunicacion.usosPosibles.includes(state.uso));
+  }
+  if (state.exterior) checks.push((state.exterior === 'Si') === eq.exterior);
+  if (state.wifi) checks.push((state.wifi === 'Si') === eq.wifi);
+  if (state.bateria) checks.push((state.bateria === 'Si') === eq.bateria);
+  if (state.poe) checks.push((state.poe === 'Si') === eq.poe);
+  if (state.celular) checks.push((state.celular === 'Si') === eq.celular);
+  // La frecuencia es texto libre en la tabla maestra (ej. "ID (125 kHz)" / "IC (13.56 MHz)"),
+  // así que se identifica buscando el número de la tecnología dentro de ese texto.
+  if (state.frecuencia) checks.push(!!(eq.frecuencia && eq.frecuencia.includes(state.frecuencia)));
+
+  if (state.bio.has('rostro')) checks.push(eq.rostros > 0);
+  if (state.bio.has('huella')) checks.push(eq.huellas > 0);
+  if (state.bio.has('palma')) checks.push(eq.palmas > 0);
+
+  if (state.cred.has('tarjeta')) checks.push(eq.tarjetas > 0);
+  if (state.cred.has('pin')) checks.push(eq.pin);
+  if (state.cred.has('qr')) checks.push(eq.qr);
+
+  state.iface.forEach(k => checks.push(!!eq.interfaz[k]));
+  if (state.iface.has('Relé') && state.puertas > 0) checks.push(eq.puertas >= state.puertas);
+
+  state.protocolo.forEach(p => {
+    if (p === 'PUSH') checks.push(eq.comunicacion.push);
+    if (p === 'PULL') checks.push(eq.comunicacion.pull);
+    if (p === 'BEST') checks.push(eq.comunicacion.best);
+  });
+
+  if (state.usuarios > 0) checks.push(eq.usuarios >= state.usuarios);
+
+  if (state.software) checks.push(eq.software.some(s => s.id === state.software));
+
+  return checks.every(Boolean);
+}
+
+/* =========================== RENDER DE TARJETAS =========================== */
+function specItem(k, v, isYesNo, matchedKey){
+  const isMatched = matchedKey && (
+    (matchedKey.iface && state.iface.has(k)) ||
+    (matchedKey.protocolo)
+  );
+  const cls = ['spec-item'];
+  if (isYesNo) cls.push(v ? 'yes' : 'no');
+  if (isMatched) cls.push('matched');
+  return `<div class="${cls.join(' ')}"><span class="k">${k}</span><span class="v">${isYesNo ? (v ? 'Sí' : 'No') : v}</span></div>`;
+}
+
+// Renglón a ANCHO COMPLETO (ocupa las 2 columnas del spec-grid) para Capacidad + Duración
+// de la batería. Van juntos y separados del resto de los datos para que nunca compitan por
+// espacio con una celda vecina, sin importar qué tan largo sea el texto que captures.
+function batteryDetailRow(eq){
+  return `<div class="spec-battery-row">
+    ${specItem('Capacidad', eq.bateriaCapacidad || 's/d', false)}
+    ${specItem('Duración', eq.bateriaDuracion || 's/d', false)}
+  </div>`;
+}
+
+// Aviso ámbar para paneles que no pueden checar/abrir por sí solos y necesitan un lector o
+// módulo aparte. Es texto libre (columna "Requiere Lector o Módulo"), así que se muestra
+// como un bloque de texto en vez de forzarlo dentro de la grilla de specs.
+function lectorModuloWarning(eq){
+  if (!eq.requiereLectorModulo) return '';
+  return `<div class="lector-warning">
+    <span class="lector-warning-icon">⚠</span>
+    <div><strong>Requiere lector o módulo</strong><span>${eq.requiereLectorModulo}</span></div>
+  </div>`;
+}
+
+function envIcons(eq){
+  // Cada ícono se dibuja como imagen propia si existe en /img/icons/<clave>-on.png o
+  // -off.png (transparencia recomendada, ~64x64 px). Mientras no subas esos archivos, se
+  // usa automáticamente el emoji de respaldo, así que esto funciona sin tocar nada más.
+  // El anillo "hot" (cuando el criterio coincide con un filtro activo) se dibuja aparte con
+  // CSS y funciona igual sobre imagen propia o sobre el emoji de respaldo.
+  const bateriaLabel = eq.bateria && (eq.bateriaCapacidad || eq.bateriaDuracion)
+    ? `Batería de respaldo: sí (${[eq.bateriaCapacidad, eq.bateriaDuracion].filter(Boolean).join(' · ')})`
+    : `Batería de respaldo: ${eq.bateria ? 'sí' : 'no'}`;
+  const defs = [
+    { key: 'exterior', label: 'Exterior',            on: eq.exterior, hot: state.exterior === 'Si', emoji: '☂', title: null },
+    { key: 'wifi',      label: 'WiFi',                on: eq.wifi,      hot: state.wifi === 'Si',      emoji: '📶', title: null },
+    { key: 'qr',        label: 'Código QR',           on: eq.qr,        hot: state.cred.has('qr'),      emoji: '▦', title: null },
+    { key: 'bateria',   label: 'Batería de respaldo', on: eq.bateria,   hot: state.bateria === 'Si',    emoji: '🔋', title: bateriaLabel },
+    { key: 'poe',       label: 'PoE',                  on: eq.poe,       hot: state.poe === 'Si',        emoji: '🔌', title: `Alimentación PoE (por red): ${eq.poe ? 'sí' : 'no'}` },
+    { key: 'celular',   label: 'Chip celular (4G)',    on: eq.celular,   hot: state.celular === 'Si',    emoji: '📡', title: `Chip celular (4G): ${eq.celular ? 'sí' : 'no'}` },
+  ];
+  return `<div class="env-icons">${defs.map(d => `
+      <div class="env-icon ${d.on ? 'on' : ''} ${d.on && d.hot ? 'hot' : ''}" title="${d.title || `${d.label}: ${d.on ? 'sí' : 'no'}`}">
+        <img src="img/icons/${d.key}-${d.on ? 'on' : 'off'}.png" alt="${d.label}" loading="lazy" onerror="handleIconError(this,'${d.emoji}')">
+      </div>`).join('')}</div>`;
+}
+
+function handleIconError(imgEl, emojiFallback){
+  const span = document.createElement('span');
+  span.className = 'env-icon-fallback';
+  span.textContent = emojiFallback;
+  imgEl.replaceWith(span);
+}
+
+function matchScore(eq){
+  const total = TOTAL_DETERMINANTES();
+  if (total === 0) return null;
+  return total; // ya filtramos por cumpleFiltros, así que si aparece, cumple el 100% de lo activo
+}
+
+function swRowHTML(s){
+  const badge = s.puntoAsistencia
+    ? `<span class="tagpill sw-badge" data-tip="Este equipo, dado de alta en el módulo de Acceso del software, permite jalar sus eventos hacia el módulo de Asistencia sin necesitar un checador aparte.">Punto de asistencia</span>`
+    : '';
+  return `<div class="sw-row"><span class="name">${s.nombre}</span><span class="meta">${s.modulo} · ${s.nivel} · ${s.protocolo}</span>${badge}</div>`;
+}
+
+function cardHTML(eq, visible){
+  const bioBadges = [
+    eq.rostros > 0 ? `<span class="tagpill">Rostro ${eq.rostros.toLocaleString()}</span>` : `<span class="tagpill off">Sin rostro</span>`,
+    eq.huellas > 0 ? `<span class="tagpill">Huella ${eq.huellas.toLocaleString()}</span>` : `<span class="tagpill off">Sin huella</span>`,
+    eq.palmas > 0 ? `<span class="tagpill">Palma ${eq.palmas.toLocaleString()}</span>` : `<span class="tagpill off">Sin palma</span>`,
+  ].join('');
+
+  const credBadges = [
+    eq.tarjetas > 0 ? `<span class="tagpill neutral">Tarjeta (${eq.frecuencia || 's/d'})</span>` : '',
+    eq.pin ? `<span class="tagpill neutral">PIN</span>` : '',
+    eq.qr ? `<span class="tagpill neutral">QR</span>` : '',
+  ].join('');
+
+  const ifaceItems = Object.entries(eq.interfaz).map(([k,v]) => specItem(k, v, true, {iface:true})).join('')
+    + (eq.interfaz['Relé'] && eq.puertas > 0 ? specItem('Cantidad de puertas', eq.puertas, false) : '');
+
+  const swRows = eq.software.length
+    ? eq.software.map(swRowHTML).join('')
+    : `<div class="sw-row"><span class="meta">Sin software vinculado en la tabla maestra</span></div>`;
+
+  const usos = eq.comunicacion.usosPosibles.join(' + ') || 's/d';
+  const total = TOTAL_DETERMINANTES();
+
+  return `
+  <article class="card ${visible ? '' : 'dimmed'}" data-id="${eq.id}">
+    <div class="card-scan"></div>
+    <a class="card-image-link" href="${eq.enlace}" target="_blank" rel="noopener" title="Ver clave de este equipo en el catálogo">
+      <span class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/><path d="M8 5l1.5-2h5L16 5"/></svg></span>
+      <img src="${eq.imagen}" alt="${eq.modelo}" loading="lazy" onerror="this.style.display='none'">
+      <span class="zoom-tag">Ver en catálogo ↗</span>
+    </a>
+    <div class="card-scroll-body">
+      <div class="card-head">
+        <div>
+          <div class="card-id">${eq.id}</div>
+          <div class="card-model">${eq.modelo}</div>
+          ${envIcons(eq)}
+        </div>
+        <div class="match-badge ${total ? '' : ''}">
+          ${total ? `${total}/${total}<small>criterios</small>` : `<small>sin filtros activos</small>`}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="spec-block">
+          <h4>Capacidad &amp; uso</h4>
+          <div class="spec-grid">
+            ${specItem('Usuarios', eq.usuarios.toLocaleString(), false)}
+            ${specItem('Eventos (log)', eq.eventos.toLocaleString(), false)}
+            ${specItem('Uso nativo/alterno', usos, false)}
+            ${specItem('Cambia de tipo', eq.comunicacion.puedeCambiar, true)}
+            ${specItem('Batería de respaldo', eq.bateria, true)}
+            ${eq.bateria ? batteryDetailRow(eq) : ''}
+          </div>
+        </div>
+        <div class="spec-block">
+          <h4>Verificación biométrica</h4>
+          <div class="badge-row">${bioBadges}</div>
+        </div>
+        <div class="spec-block">
+          <h4>Credenciales</h4>
+          <div class="badge-row">${credBadges || '<span class="tagpill off">Ninguna registrada</span>'}</div>
+        </div>
+        <div class="spec-block">
+          <h4>Interfaz de hardware</h4>
+          <div class="spec-grid">${ifaceItems}</div>
+        </div>
+        ${lectorModuloWarning(eq)}
+        <div class="spec-block">
+          <h4>Software compatible</h4>
+          <div class="sw-list">${swRows}</div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <span class="ip-badge ${eq.ip ? '' : 'none'}">${eq.exterior ? (eq.ip || 'Exterior') : 'Uso interior'}</span>
+        <button data-open="${eq.id}">Ver ficha completa</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  const matched = EQUIPOS.filter(cumpleFiltros);
+  const activeFilters = TOTAL_DETERMINANTES();
+
+  let list = EQUIPOS.map(eq => ({ eq, visible: matched.includes(eq) }));
+  // ocultar por completo los que no cumplen cuando hay al menos un filtro activo
+  list = activeFilters > 0 ? list.filter(x => x.visible) : list;
+
+  const sortMode = document.getElementById('sortSelect').value;
+  list.sort((a,b) => {
+    if (sortMode === 'usuarios_desc') return b.eq.usuarios - a.eq.usuarios;
+    if (sortMode === 'usuarios_asc') return a.eq.usuarios - b.eq.usuarios;
+    if (sortMode === 'modelo') return a.eq.modelo.localeCompare(b.eq.modelo);
+    return b.eq.usuarios - a.eq.usuarios; // "match" default: por capacidad desc entre los que cumplen
+  });
+
+  document.getElementById('resultsSub').textContent = activeFilters
+    ? `${list.length} de ${EQUIPOS.length} equipos cumplen los ${activeFilters} criterio(s) seleccionado(s).`
+    : `Mostrando el catálogo completo (${EQUIPOS.length} equipos). Selecciona filtros para acotar.`;
+
+  if (!list.length){
+    grid.innerHTML = `<div class="empty-state"><h3>Ningún equipo cumple esta combinación</h3><p>Prueba quitando algún filtro determinante, por ejemplo interfaz de hardware o entorno.</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(x => cardHTML(x.eq, true)).join('');
+
+  grid.querySelectorAll('[data-open]').forEach(btn => {
+    btn.addEventListener('click', () => openDetail(btn.dataset.open));
+  });
+}
+
+/* =========================== DETALLE / MODAL =========================== */
+function openDetail(id){
+  const eq = EQUIPOS.find(e => e.id === id);
+  if (!eq) return;
+  document.getElementById('detId').textContent = eq.id;
+  document.getElementById('detModel').textContent = eq.modelo + ' — ' + eq.marca;
+  document.getElementById('detFamily').textContent = eq.familia;
+  document.getElementById('detBody').innerHTML = `
+    <div class="spec-block"><h4>Ficha completa</h4>
+      <div class="spec-grid">
+        ${specItem('Usuarios', eq.usuarios.toLocaleString(), false)}
+        ${specItem('Rostros', eq.rostros.toLocaleString(), false)}
+        ${specItem('Huellas', eq.huellas.toLocaleString(), false)}
+        ${specItem('Palmas', eq.palmas.toLocaleString(), false)}
+        ${specItem('Tarjetas', eq.tarjetas.toLocaleString(), false)}
+        ${specItem('Frecuencia', eq.frecuencia || 's/d', false)}
+        ${specItem('PIN', eq.pin, true)}
+        ${specItem('QR', eq.qr, true)}
+        ${specItem('Eventos', eq.eventos.toLocaleString(), false)}
+        ${specItem('Exterior', eq.exterior, true)}
+        ${specItem('Índice de protección', eq.ip || 's/d', false)}
+        ${specItem('WiFi', eq.wifi, true)}
+        ${specItem('PoE', eq.poe, true)}
+        ${specItem('Chip celular (4G)', eq.celular, true)}
+        ${specItem('Batería de respaldo', eq.bateria, true)}
+        ${eq.bateria ? batteryDetailRow(eq) : ''}
+      </div>
+    </div>
+    <div class="spec-block"><h4>Interfaz de acceso</h4>
+      <div class="spec-grid">
+        ${Object.entries(eq.interfaz).map(([k,v]) => specItem(k,v,true)).join('')}
+        ${eq.interfaz['Relé'] && eq.puertas > 0 ? specItem('Cantidad de puertas', eq.puertas, false) : ''}
+      </div>
+    </div>
+    ${lectorModuloWarning(eq)}
+    <div class="spec-block"><h4>Comunicación</h4>
+      <div class="spec-grid">
+        ${specItem('PUSH', eq.comunicacion.push, true)}
+        ${specItem('PULL', eq.comunicacion.pull, true)}
+        ${specItem('BEST', eq.comunicacion.best, true)}
+        ${specItem('Tipo nativo', eq.comunicacion.tipoNativo || 's/d', false)}
+        ${specItem('Puede cambiar tipo', eq.comunicacion.puedeCambiar, true)}
+        ${specItem('Tipo alterno', eq.comunicacion.tipoAlterno || 's/d', false)}
+      </div>
+    </div>
+    <div class="spec-block"><h4>Software compatible</h4>
+      <div class="sw-list">${eq.software.length ? eq.software.map(swRowHTML).join('') : '<div class="sw-row"><span class="meta">Sin registros</span></div>'}</div>
+    </div>
+  `;
+  document.getElementById('overlay').classList.add('open');
+}
+document.getElementById('closeDetail').addEventListener('click', () => document.getElementById('overlay').classList.remove('open'));
+document.getElementById('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') e.currentTarget.classList.remove('open'); });
+
+/* =========================== EVENTOS DE FILTROS =========================== */
+document.querySelectorAll('.opt-row').forEach(row => {
+  const filterName = row.dataset.filter;
+  const mode = row.dataset.mode;
+  row.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (mode === 'single'){
+        row.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state[filterName] = chip.dataset.value;
+      } else {
+        chip.classList.toggle('active');
+        chip.classList.toggle('multi');
+        const val = chip.dataset.value;
+        if (state[filterName].has(val)) state[filterName].delete(val);
+        else state[filterName].add(val);
+      }
+      if (filterName === 'iface') syncPuertasFilterVisibility();
+      render();
+    });
+  });
+});
+
+const puertasRange = document.getElementById('puertasRange');
+const puertasVal = document.getElementById('puertasVal');
+const puertasSubFilter = document.getElementById('puertasSubFilter');
+puertasRange.addEventListener('input', () => {
+  state.puertas = Number(puertasRange.value);
+  puertasVal.textContent = state.puertas.toLocaleString();
+  render();
+});
+function syncPuertasFilterVisibility(){
+  const activo = state.iface.has('Relé');
+  puertasSubFilter.style.display = activo ? 'block' : 'none';
+  if (!activo){
+    state.puertas = 0;
+    puertasRange.value = 1;
+    puertasVal.textContent = '1';
+  }
+}
+
+const usuariosRange = document.getElementById('usuariosRange');
+const usuariosVal = document.getElementById('usuariosVal');
+const USUARIOS_MAX = Number(usuariosRange.max);
+usuariosRange.addEventListener('input', () => {
+  state.usuarios = Number(usuariosRange.value);
+  usuariosVal.textContent = state.usuarios >= USUARIOS_MAX ? `≥${USUARIOS_MAX.toLocaleString()}` : state.usuarios.toLocaleString();
+  render();
+});
+
+document.getElementById('softwareSelect').addEventListener('change', e => {
+  state.software = e.target.value;
+  render();
+});
+
+document.getElementById('sortSelect').addEventListener('change', render);
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  state.uso = ''; state.exterior = ''; state.wifi = ''; state.bateria = ''; state.poe = ''; state.celular = ''; state.frecuencia = ''; state.usuarios = 0; state.software = '';
+  state.bio.clear(); state.cred.clear(); state.iface.clear(); state.protocolo.clear();
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active','multi'));
+  document.querySelectorAll('[data-mode="single"] .chip[data-value=""]').forEach(c => c.classList.add('active'));
+  usuariosRange.value = 0; usuariosVal.textContent = '0';
+  document.getElementById('softwareSelect').value = '';
+  syncPuertasFilterVisibility();
+  render();
+});
+
+/* =========================== CARGA AUTOMÁTICA DEL CATÁLOGO ===========================
+   Este recomendador es de uso interno para el equipo de ventas: NO tiene botón para subir
+   archivos, así que nadie más puede alterar el catálogo desde el navegador.
+   YA NO se procesa el .xlsx aquí (eso es lento en el navegador conforme la tabla maestra
+   crece). En su lugar, este index.html solo lee "catalogo_zkteco.json" — un archivo ya
+   convertido, mucho más rápido de cargar.
+   Flujo para ACTUALIZAR la información:
+     1. Edita normalmente tu Tabla_Maestra_ZKTeco.xlsx.
+     2. Ábrelo con "convertidor.html" (doble clic, no necesita servidor) y descarga el
+        catalogo_zkteco.json que genera.
+     3. Coloca ese catalogo_zkteco.json en la misma carpeta que este index.html (junto al
+        xlsx, no hace falta borrarlo) y recarga la página.
+   Mientras tanto se muestra el catálogo incluido por defecto más abajo, para que la página
+   nunca aparezca vacía.
+   Nota: esta carga automática requiere que la página se abra vía servidor (http/https), no con
+   doble clic sobre el archivo (file://), ya que los navegadores bloquean fetch() en ese modo. */
+const CATALOG_JSON_CANDIDATES = ['catalogo_zkteco.json', './catalogo_zkteco.json'];
+
+async function tryAutoLoadCatalog(){
+  const required = ['Equipos','Interfaz_Acceso','Comunicacion','Software','Compatibilidad'];
+  for (const path of CATALOG_JSON_CANDIDATES){
+    try {
+      const res = await fetch(path, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const wbJson = await res.json();
+      if (!required.every(s => Array.isArray(wbJson[s]))) continue;
+      loadWorkbookJSON(wbJson);
+      console.log('[Recomendador ZKTeco] Catálogo cargado desde', path);
+      return true;
+    } catch (err) {
+      // se intenta con el siguiente candidato; si ninguno funciona, se conserva el catálogo por defecto
+    }
+  }
+  console.log('[Recomendador ZKTeco] No se encontró catalogo_zkteco.json junto al index.html; usando catálogo incluido por defecto. Genera uno con convertidor.html.');
+  return false;
+}
+
+/* =========================== INIT =========================== */
+loadWorkbookJSON(DEFAULT_WORKBOOK_JSON); // catálogo de respaldo, visible de inmediato
+tryAutoLoadCatalog(); // intenta reemplazarlo con catalogo_zkteco.json de la carpeta raíz
+</script>
+</body>
+</html>
