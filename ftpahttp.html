@@ -1,0 +1,231 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Generador de enlaces ZKTeco</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .contenedor {
+            max-width: 850px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .tarjeta {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .descripcion {
+            color: #6b7280;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 110px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: Consolas, monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 11px 18px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .resultado {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .resultado textarea {
+            min-height: 90px;
+            background: #f9fafb;
+        }
+
+        .mensaje {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #16a34a;
+            display: none;
+        }
+
+        .error {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #dc2626;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <div class="tarjeta">
+
+        <h1>Generador de enlaces ZKTeco</h1>
+
+        <div class="descripcion">
+            Convierte un enlace FTP del servidor local en el enlace público de descarga.
+        </div>
+
+        <label for="ftpUrl">Enlace FTP</label>
+
+        <textarea
+            id="ftpUrl"
+            placeholder="ftp://tvczk@10.2.4.65/zkteco/zkbiocvsecurity/archivo.zip"
+        ></textarea>
+
+        <button onclick="generarEnlace()">
+            Generar enlace
+        </button>
+
+        <div id="error" class="error">
+            El enlace ingresado no parece ser un enlace FTP válido.
+        </div>
+
+        <div id="resultado" class="resultado">
+
+            <label for="publicUrl">Enlace público</label>
+
+            <textarea id="publicUrl" readonly></textarea>
+
+            <button onclick="copiarEnlace()">
+                Copiar enlace
+            </button>
+
+            <div id="mensaje" class="mensaje">
+                Enlace copiado correctamente.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const servidorPublico = "tvcmty.dvrdns.org:8090/files";
+
+
+    function generarEnlace() {
+
+        const ftpUrl = document.getElementById("ftpUrl").value.trim();
+
+        const resultado = document.getElementById("resultado");
+        const publicUrl = document.getElementById("publicUrl");
+        const error = document.getElementById("error");
+        const mensaje = document.getElementById("mensaje");
+
+
+        // Ocultar mensajes anteriores
+        error.style.display = "none";
+        mensaje.style.display = "none";
+
+
+        /*
+         * Busca la primera aparición de "/zkteco/".
+         *
+         * Todo lo que esté antes de esa parte se elimina.
+         */
+        const posicion = ftpUrl.toLowerCase().indexOf("/zkteco/");
+
+
+        if (!ftpUrl.toLowerCase().startsWith("ftp://") || posicion === -1) {
+
+            resultado.style.display = "none";
+            error.style.display = "block";
+
+            return;
+        }
+
+
+        // Conservamos desde /zkteco/ hasta el final
+        const ruta = ftpUrl.substring(posicion);
+
+
+        // Generamos el enlace público
+        const enlaceFinal = servidorPublico + ruta;
+
+
+        publicUrl.value = enlaceFinal;
+
+        resultado.style.display = "block";
+    }
+
+
+    function copiarEnlace() {
+
+        const publicUrl = document.getElementById("publicUrl");
+
+        navigator.clipboard.writeText(publicUrl.value)
+            .then(() => {
+
+                const mensaje = document.getElementById("mensaje");
+
+                mensaje.style.display = "block";
+
+                setTimeout(() => {
+                    mensaje.style.display = "none";
+                }, 2500);
+
+            });
+
+    }
+
+</script>
+
+</body>
+</html>
+```
