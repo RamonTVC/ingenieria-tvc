@@ -82,7 +82,7 @@ header.topbar{
   display:grid;
   grid-template-columns:340px minmax(0, 1fr);
   gap:24px;
-  max-width:1440px;
+  max-width:1680px;
   margin:0 auto;
   padding:24px;
   align-items:start;
@@ -215,10 +215,17 @@ select.f-select{
   gap:18px;
   overflow-x:auto;
   overflow-y:visible;
-  padding-bottom:10px;
-  align-items:flex-start;
-  scrollbar-width:thin;
+  padding-top:10px;
+  /* flex-end (no flex-start): el contenedor está volteado con scaleY(-1) más abajo, así que
+     lo que aquí es "el final" del eje cruzado es lo que se ve arriba en pantalla — esto es
+     lo que da alineación pareja por ARRIBA entre tarjetas de distinta altura. */
+  align-items:flex-end;
+  scrollbar-width:auto;
   scrollbar-color:var(--line-strong) transparent;
+  /* Truco para que la barra de scroll quede ARRIBA en vez de abajo (y así se note de
+     inmediato que hay más equipos a la derecha): se voltea el contenedor completo, y cada
+     tarjeta se voltea de regreso para que su contenido se vea normal. */
+  transform:scaleY(-1);
 }
 .grid-cards::-webkit-scrollbar{height:9px;}
 .grid-cards::-webkit-scrollbar-track{background:transparent;}
@@ -235,10 +242,11 @@ select.f-select{
   transition:transform .15s, box-shadow .15s;
   flex:0 0 308px;
   width:308px;
+  transform:scaleY(-1); /* contrarresta el volteo del contenedor padre */
   /* Sin límite de altura: cada bloque de información se apila normalmente y la tarjeta
      crece lo que necesite, en vez de recortar el contenido con scroll interno. */
 }
-.card:hover{transform:translateY(-2px); box-shadow:0 10px 24px -12px rgba(22,40,58,.35);}
+.card:hover{transform:scaleY(-1) translateY(2px); box-shadow:0 10px 24px -12px rgba(22,40,58,.35);}
 .card.dimmed{opacity:.38; filter:grayscale(.5);}
 
 .card-image-link{
@@ -422,6 +430,7 @@ select.f-select{
 
 .empty-state{
   flex:1 1 100%; width:100%; text-align:center; padding:60px 20px; color:var(--ink-soft);
+  transform:scaleY(-1); /* contrarresta el volteo del contenedor padre */
 }
 .empty-state h3{font-family:var(--font-display); font-size:18px; margin:0 0 6px; color:var(--ink);}
 .empty-state p{font-size:13px; margin:0;}
@@ -446,7 +455,7 @@ select.f-select{
 .detail-body{padding:22px 24px; display:flex; flex-direction:column; gap:18px;}
 
 footer.pagefoot{
-  max-width:1440px; margin:10px auto 40px; padding:0 24px;
+  max-width:1680px; margin:10px auto 40px; padding:0 24px;
   font-size:11.5px; color:var(--ink-faint); font-family:var(--font-mono);
 }
 </style>
