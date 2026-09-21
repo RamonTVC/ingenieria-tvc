@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Recomendador ZKTeco · Control de Acceso y Asistencia</title>
+<link rel="icon" href="img/icons/favicon.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -162,22 +163,22 @@ select.f-select{
   font-family:var(--font-body); font-size:12.5px; color:var(--ink); background:#fbfcfd;
 }
 
-/* Tooltips con retardo: aparecen tras ~0.6s de mouse encima, para no saturar la vista */
-[data-tip]{position:relative;}
-[data-tip]::after{
-  content:attr(data-tip);
-  position:absolute; bottom:calc(100% + 9px); left:0;
+/* Tooltips con retardo (~0.6s): un solo elemento flotante (position:fixed) posicionado por
+   JS, en vez de un ::after anidado en cada contenedor. Esto evita que quede recortado o por
+   debajo de otros bloques cuando el elemento vive dentro de un panel con scroll, esquinas
+   redondeadas, o una fila de tarjetas — sin importar qué tan angosto sea ese contenedor. */
+[data-tip]{cursor:help;}
+.chip[data-tip]{cursor:pointer;}
+.global-tooltip{
+  position:fixed; z-index:9999; top:0; left:0;
   background:var(--ink); color:#e9eef1; font-family:var(--font-body); font-weight:400;
-  font-size:11.5px; line-height:1.35; text-transform:none; letter-spacing:normal;
-  padding:8px 10px; border-radius:7px; width:210px;
+  font-size:11.5px; line-height:1.35;
+  padding:8px 10px; border-radius:7px; max-width:230px;
   opacity:0; transform:translateY(4px); pointer-events:none;
-  transition:opacity .15s ease, transform .15s ease; transition-delay:0s;
-  z-index:30; box-shadow:0 8px 20px -8px rgba(22,40,58,.5);
+  transition:opacity .12s ease, transform .12s ease;
+  box-shadow:0 8px 20px -8px rgba(22,40,58,.5);
 }
-[data-tip]:hover::after{
-  opacity:1; transform:translateY(0);
-  transition-delay:.6s;
-}
+.global-tooltip.show{opacity:1; transform:translateY(0);}
 
 .filters-foot{
   padding:12px 18px; border-top:1px solid var(--line);
@@ -1053,7 +1054,7 @@ function cardHTML(eq, visible){
           <div class="card-id">${eq.id}</div>
           <div class="card-model">${eq.modelo}</div>
           ${envIcons(eq)}
-          ${eq.claveAlterna ? `<a class="alt-badge" href="${eq.enlaceAlterno || '#'}" target="_blank" rel="noopener" data-tip="Mismo equipo, especificaciones idénticas, en presentación con gabinete y fuente de poder incluidos.">🟩 También con gabinete: ${eq.claveAlterna} ↗</a>` : ''}
+          ${eq.claveAlterna ? `<a class="alt-badge" href="${eq.enlaceAlterno || '#'}" target="_blank" rel="noopener" data-tip="Mismo equipo, especificaciones idénticas, en presentación con gabinete y fuente de poder incluidos.">🗄️ También con gabinete · ${eq.claveAlterna} ↗</a>` : ''}
         </div>
         <div class="match-badge ${total ? '' : ''}">
           ${total ? `${total}/${total}<small>criterios</small>` : `<small>sin filtros activos</small>`}
@@ -1289,6 +1290,53 @@ async function tryAutoLoadCatalog(){
   console.log('[Recomendador ZKTeco] No se encontró catalogo_zkteco.json junto al index.html; usando catálogo incluido por defecto. Genera uno con convertidor.html.');
   return false;
 }
+
+/* =========================== TOOLTIP FLOTANTE (data-tip) ===========================
+   Un solo elemento <div> reutilizado para todos los tooltips, posicionado con JS y anclado
+   a document.body (position:fixed). Con delegación de eventos en document, así que funciona
+   igual con los elementos que ya existen al cargar la página (chips del formulario) y con
+   los que se regeneran en cada render() (tarjetas, badges de software, etc.) sin necesitar
+   volver a engancharlos uno por uno. Se posiciona sobre el elemento y se ajusta para nunca
+   salirse de la ventana visible, sin importar el contenedor (con scroll, recortado, angosto)
+   donde viva ese elemento.
+   =========================================================================== */
+const globalTooltip = document.createElement('div');
+globalTooltip.className = 'global-tooltip';
+document.body.appendChild(globalTooltip);
+let tooltipShowTimer = null;
+let tooltipTarget = null;
+
+function positionTooltip(el){
+  const rect = el.getBoundingClientRect();
+  const margin = 8;
+  const tipRect = globalTooltip.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - tipRect.width / 2;
+  left = Math.max(margin, Math.min(left, window.innerWidth - tipRect.width - margin));
+  let top = rect.top - tipRect.height - margin;
+  if (top < margin) top = rect.bottom + margin; // si no cabe arriba, se muestra abajo
+  globalTooltip.style.left = `${left}px`;
+  globalTooltip.style.top = `${top}px`;
+}
+
+document.addEventListener('mouseover', (e) => {
+  const el = e.target.closest('[data-tip]');
+  if (!el || el === tooltipTarget) return;
+  tooltipTarget = el;
+  clearTimeout(tooltipShowTimer);
+  tooltipShowTimer = setTimeout(() => {
+    globalTooltip.textContent = el.getAttribute('data-tip');
+    globalTooltip.classList.add('show');
+    positionTooltip(el);
+  }, 600);
+});
+document.addEventListener('mouseout', (e) => {
+  const el = e.target.closest('[data-tip]');
+  if (!el || (e.relatedTarget && el.contains(e.relatedTarget))) return;
+  clearTimeout(tooltipShowTimer);
+  globalTooltip.classList.remove('show');
+  tooltipTarget = null;
+});
+window.addEventListener('scroll', () => { globalTooltip.classList.remove('show'); tooltipTarget = null; }, true);
 
 /* =========================== INIT =========================== */
 loadWorkbookJSON(DEFAULT_WORKBOOK_JSON); // catálogo de respaldo, visible de inmediato
