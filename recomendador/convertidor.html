@@ -88,12 +88,15 @@
     Hojas requeridas: Equipos, Interfaz_Acceso, Comunicacion, Software, Compatibilidad (mismos
     encabezados que ya usas). Si agregaste columnas nuevas (por ejemplo "Batería de respaldo"
     o "Duración"), no necesitas tocar este convertidor: se incluyen solas porque se exporta la
-    hoja completa tal cual está en tu Excel.
+    hoja completa tal cual está en tu Excel.<br><br>
+    Hojas opcionales para el recomendador de licencias: <b>Licencias</b> y <b>Licencias_Software</b>.
+    Si tu archivo aún no las tiene, no pasa nada — simplemente no se incluyen en el JSON.
   </p>
 </div>
 
 <script>
 const REQUIRED_SHEETS = ['Equipos','Interfaz_Acceso','Comunicacion','Software','Compatibilidad'];
+const OPTIONAL_SHEETS = ['Licencias','Licencias_Software']; // recomendador de licencias — si no existen, se omiten sin error
 let lastJSON = null;
 let lastFileName = 'catalogo_zkteco.json';
 
@@ -125,6 +128,12 @@ function processFile(file){
       REQUIRED_SHEETS.forEach(name => {
         wbJson[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { defval: null });
         counts[name] = wbJson[name].length;
+      });
+      OPTIONAL_SHEETS.forEach(name => {
+        if (wb.SheetNames.includes(name)){
+          wbJson[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { defval: null });
+          counts[name] = wbJson[name].length;
+        }
       });
       lastJSON = wbJson;
       lastFileName = 'catalogo_zkteco.json';
