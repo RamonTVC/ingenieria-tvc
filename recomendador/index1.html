@@ -1998,9 +1998,9 @@ function licenciaCardHTML(lic){
           <div class="spec-grid">
             ${specItem('Tipo', lic.tipo || 's/d', false)}
             ${specItem('Vigencia', lic.vigencia || 's/d', false)}
-            ${lic.checadores !== null ? specItem('Checadores', lic.checadores.toLocaleString(), false) : ''}
-            ${lic.empleados !== null ? specItem('Empleados', lic.empleados.toLocaleString(), false) : ''}
-            ${lic.puertas !== null ? specItem('Puertas', lic.puertas.toLocaleString(), false) : ''}
+            ${lic.checadores !== null ? specItem('Checadores', lic.checadores === Infinity ? 'Ilimitadas' : lic.checadores.toLocaleString(), false) : ''}
+            ${lic.empleados !== null ? specItem('Empleados', lic.empleados === Infinity ? 'Ilimitadas' : lic.empleados.toLocaleString(), false) : ''}
+            ${lic.puertas !== null ? specItem('Puertas', lic.puertas ===e Infinity ? 'Ilimitadas' : lic.puertas.toLocaleString(), false) : ''}
             ${lic.app !== null ? specItem('Apps', lic.app === Infinity ? 'Ilimitadas' : lic.app.toLocaleString(), false) : ''}
           </div>
         </div>
