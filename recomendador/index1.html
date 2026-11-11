@@ -111,7 +111,7 @@ header.topbar{
   display:flex; align-items:center; justify-content:center;
   padding:40px 24px;
 }
-.landing-inner{max-width:760px; text-align:center;}
+.landing-inner{max-width:1040px; text-align:center;}
 .landing-inner h2{font-family:var(--font-display); font-size:26px; margin:0 0 10px;}
 .landing-inner > p{color:var(--ink-soft); font-size:14px; margin:0 0 32px;}
 .landing-cards{display:flex; gap:22px; flex-wrap:wrap; justify-content:center;}
@@ -581,6 +581,60 @@ footer.pagefoot{
   max-width:1680px; margin:10px auto 40px; padding:0 24px;
   font-size:11.5px; color:var(--ink-faint); font-family:var(--font-mono);
 }
+
+/* ---------- BUSCADOR ---------- */
+.buscador-wrap{max-width:1100px; margin:0 auto; padding:28px 24px 40px;}
+.buscador-title{font-family:var(--font-display); font-size:24px; margin:0 0 6px;}
+.buscador-sub{color:var(--ink-soft); font-size:13.5px; margin:0 0 18px; line-height:1.5;}
+.buscador-box{position:relative;}
+.buscador-box input{
+  width:100%; padding:14px 16px; font-size:15px; font-family:var(--font-body);
+  border:1px solid var(--line-strong); border-radius:12px; background:#fff; color:var(--ink); outline:none;
+}
+.buscador-box input:focus{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);}
+.buscador-sug{
+  display:none; position:absolute; left:0; right:0; top:calc(100% + 6px); z-index:40;
+  background:#fff; border:1px solid var(--line-strong); border-radius:12px;
+  box-shadow:0 16px 34px -14px rgba(22,40,58,.45); max-height:380px; overflow-y:auto; padding:6px;
+}
+.sug-item{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:none; background:none;
+  padding:9px 10px; border-radius:8px; cursor:pointer; font-family:var(--font-body); font-size:13px; color:var(--ink);
+}
+.sug-item:hover, .sug-item.active{background:var(--accent-soft);}
+.sug-tipo{flex:none; font-family:var(--font-mono); font-size:10px; font-weight:700; padding:3px 7px; border-radius:5px; color:#fff; letter-spacing:.3px;}
+.sug-equipo{background:var(--ink);} .sug-licencia{background:var(--accent);} .sug-software{background:var(--blue);}
+.sug-label{font-weight:600;}
+.sug-sub{margin-left:auto; font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint); text-align:right;}
+.sug-empty{padding:12px; font-size:12.5px; color:var(--ink-soft);}
+.buscador-chips{margin:14px 0 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--ink-faint);}
+.buscador-chips-label{font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.5px;}
+#buscadorChips{display:flex; gap:6px; flex-wrap:wrap;}
+.buscador-hint{margin-top:34px; text-align:center; color:var(--ink-soft); font-size:13.5px; line-height:1.6;}
+
+.ficha{background:var(--panel); border:1px solid var(--line-strong); border-radius:14px; overflow:hidden; margin-top:20px;}
+.ficha-top{display:flex; gap:22px; padding:20px; flex-wrap:wrap; border-bottom:1px solid var(--line);}
+.ficha-img{flex:0 0 220px; width:220px; border-radius:10px; overflow:hidden; border:1px solid var(--line);}
+.ficha-img .card-image-link{border-bottom:none;}
+.ficha-info{flex:1; min-width:260px;}
+.ficha-info h2{font-family:var(--font-display); font-size:22px; margin:4px 0 4px;}
+.ficha-meta{color:var(--ink-soft); font-size:13px; margin-bottom:12px; line-height:1.5;}
+.ficha-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+.ficha-btn{
+  display:inline-block; background:var(--ink); color:#fff; border:none; border-radius:8px; padding:9px 14px;
+  font-size:12.5px; font-weight:600; cursor:pointer; text-decoration:none; font-family:var(--font-body);
+}
+.ficha-btn:hover{background:var(--accent-ink);}
+.ficha-btn.ghost{background:#eef1f3; color:var(--ink);}
+.ficha-btn.ghost:hover{background:var(--accent-soft); color:var(--accent-ink);}
+.ficha-section{padding:18px 20px; border-top:1px solid var(--line);}
+.ficha-section:first-of-type{border-top:none;}
+.ficha-section h3{font-family:var(--font-display); font-size:15px; margin:0 0 4px;}
+.ficha-section > p.ficha-nota{font-size:12px; color:var(--ink-soft); margin:0 0 10px; line-height:1.45;}
+.ficha-body{display:flex; flex-direction:column; gap:18px; padding:18px 20px; border-top:1px solid var(--line);}
+.compat-row.clickable{cursor:pointer;}
+.compat-row.clickable:hover{background:var(--accent-soft);}
+.ficha-notas{margin:0; padding-left:18px; font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
 </style>
 </head>
 <body>
@@ -600,6 +654,7 @@ footer.pagefoot{
     <div class="mode-toggle" id="modeToggle" style="display:none;">
       <button class="mode-btn" data-mode="equipos">📟 Equipos</button>
       <button class="mode-btn" data-mode="licencias">🪪 Licencias</button>
+      <button class="mode-btn" data-mode="buscador">🔎 Buscador</button>
     </div>
     <span class="count-pill">Catálogo cargado: <b id="catalogCount">0</b> equipos</span>
     <button class="basket-pill" id="basketPill" title="Ver canasta" style="display:none;">
@@ -612,7 +667,7 @@ footer.pagefoot{
 <div class="landing" id="landingScreen">
   <div class="landing-inner">
     <h2>¿Qué quieres revisar?</h2>
-    <p>Elige un modo para empezar. Puedes cambiar entre ambos después desde el encabezado, y cada uno tiene su propia canasta.</p>
+    <p>Elige un modo para empezar. Puedes cambiar entre ellos después desde el encabezado. Equipos y Licencias tienen cada uno su propia canasta.</p>
     <div class="landing-cards">
       <button class="landing-card" data-goto="equipos">
         <div class="landing-icon">📟</div>
@@ -623,6 +678,11 @@ footer.pagefoot{
         <div class="landing-icon">🪪</div>
         <h3>Licencias</h3>
         <p>Filtra las licencias de software ZKTeco y arma una canasta de licencias.</p>
+      </button>
+      <button class="landing-card" data-goto="buscador">
+        <div class="landing-icon">🔎</div>
+        <h3>Buscador</h3>
+        <p>¿El cliente ya tiene un equipo o una licencia? Escribe su clave o nombre y ve su ficha completa con lo que es compatible.</p>
       </button>
     </div>
   </div>
@@ -857,6 +917,19 @@ footer.pagefoot{
   </main>
 </div>
 
+<div id="buscadorView" style="display:none;">
+  <div class="buscador-wrap">
+    <h2 class="buscador-title">Buscador</h2>
+    <p class="buscador-sub">Escribe la clave o el nombre de un equipo, de una licencia o de un software, y elige el resultado para ver su ficha completa y lo que es compatible.</p>
+    <div class="buscador-box">
+      <input id="buscadorInput" type="text" autocomplete="off" spellcheck="false" placeholder="Ej. ZKT0810095, SenseFace 7A, ZKT0820004, BioTime Pro…">
+      <div id="buscadorSugerencias" class="buscador-sug"></div>
+    </div>
+    <div class="buscador-chips"><span class="buscador-chips-label">Software:</span><span id="buscadorChips"></span></div>
+    <div id="buscadorResultado"></div>
+  </div>
+</div>
+
 <footer class="pagefoot">
   Fuente de datos: hojas "Equipos", "Interfaz_Acceso", "Comunicacion", "Software", "Compatibilidad", "Licencias" y "Licencias_Software" de la Tabla Maestra ZKTeco. La canasta es solo para armar un estimado de compatibilidad — no maneja costos ni existencias, y se vacía sola al cerrar o recargar la página.
 </footer>
@@ -1035,21 +1108,23 @@ function loadWorkbookJSON(wbJson){
   render();
 }
 
-// Normaliza un número de hoja de cálculo: '' / null / undefined -> null (para poder
-// distinguir "no aplica" de "cero"), cualquier otro valor -> Number.
-function numOrNull(v){
-  return (v === null || v === undefined || v === '') ? null : Number(v);
-}
-
-// La columna "App" acepta un número (apps incluidas) o el texto "Ilimitadas"/"Ilimitado"
-// (caso ZKBio Zlink) — ese texto se convierte en Infinity para que cualquier comparación
-// ">= necesarias" siempre sea verdadera, sin necesitar un número inventado como 999999.
-function appOrNull(v){
+// Lee una capacidad de la hoja de cálculo (Checadores, Empleados, Puertas, APPs...):
+//  - vacío -> null: "no aplica / no se especifica" (se distingue de cero y NO cuenta como ilimitado)
+//  - texto "Ilimitado", "Ilimitada", "Ilimitados"... -> Infinity: cualquier comparación
+//    ">= lo que pides" siempre se cumple, sin necesitar un número inventado como 999999
+//  - cualquier otro valor -> su número (si no es número válido, null)
+// Aplica a TODAS las capacidades de las licencias, así que si otro software deja de tener
+// límite en algo, basta con escribir "Ilimitado" en esa celda.
+function capacidadOrNull(v){
   if (v === null || v === undefined || v === '') return null;
   if (typeof v === 'string' && /ilimitad/i.test(v)) return Infinity;
   const n = Number(v);
   return Number.isNaN(n) ? null : n;
 }
+const numOrNull = capacidadOrNull;
+const appOrNull = capacidadOrNull;
+// Texto para mostrar una capacidad: Infinity -> "Ilimitados"
+const fmtCapacidad = v => v === Infinity ? 'Ilimitados' : v.toLocaleString();
 
 function buildLicenseModel(wbJson){
   return (wbJson.Licencias || []).map((r, i) => ({
@@ -1507,8 +1582,8 @@ function camposDisponibles(software){
 }
 
 function sugerirCombo(target, software, campo){
-  const bases = LICENCIAS.filter(l => l.software === software && l.tipo === 'Base' && l[campo] !== null).sort((a,b) => a[campo] - b[campo]);
-  const aumentos = LICENCIAS.filter(l => l.software === software && l.tipo === 'Aumento' && l[campo] !== null).sort((a,b) => a[campo] - b[campo]);
+  const bases = LICENCIAS.filter(l => l.software === software && l.tipo === 'Base' && l[campo] !== null && Number.isFinite(l[campo])).sort((a,b) => a[campo] - b[campo]);
+  const aumentos = LICENCIAS.filter(l => l.software === software && l.tipo === 'Aumento' && l[campo] !== null && Number.isFinite(l[campo])).sort((a,b) => a[campo] - b[campo]);
   if (!bases.length) return null;
 
   const baseDirecta = bases.find(b => b[campo] >= target) || null;
@@ -1998,9 +2073,9 @@ function licenciaCardHTML(lic){
           <div class="spec-grid">
             ${specItem('Tipo', lic.tipo || 's/d', false)}
             ${specItem('Vigencia', lic.vigencia || 's/d', false)}
-            ${lic.checadores !== null ? specItem('Checadores', lic.checadores.toLocaleString(), false) : ''}
-            ${lic.empleados !== null ? specItem('Empleados', lic.empleados.toLocaleString(), false) : ''}
-            ${lic.puertas !== null ? specItem('Puertas', lic.puertas.toLocaleString(), false) : ''}
+            ${lic.checadores !== null ? specItem('Checadores', fmtCapacidad(lic.checadores), false) : ''}
+            ${lic.empleados !== null ? specItem('Empleados', fmtCapacidad(lic.empleados), false) : ''}
+            ${lic.puertas !== null ? specItem('Puertas', fmtCapacidad(lic.puertas), false) : ''}
             ${lic.app !== null ? specItem('Apps', lic.app === Infinity ? 'Ilimitadas' : lic.app.toLocaleString(), false) : ''}
           </div>
         </div>
@@ -2060,17 +2135,14 @@ function renderLicencias(){
 }
 
 function render(){
-  if (appMode === 'licencias') renderLicencias(); else renderEquipos();
+  if (appMode === 'licencias') renderLicencias();
+  else if (appMode === 'buscador') renderBuscador();
+  else renderEquipos();
 }
 
 /* =========================== DETALLE / MODAL =========================== */
-function openDetail(id){
-  const eq = EQUIPOS.find(e => e.id === id);
-  if (!eq) return;
-  document.getElementById('detId').textContent = eq.id;
-  document.getElementById('detModel').textContent = eq.modelo + ' — ' + eq.marca;
-  document.getElementById('detFamily').textContent = eq.familia;
-  document.getElementById('detBody').innerHTML = `
+function fichaEquipoBodyHTML(eq){
+  return `
     ${presentacionesBlock(eq)}
     <div class="spec-block"><h4>Ficha completa</h4>
       <div class="spec-grid">
@@ -2113,6 +2185,15 @@ function openDetail(id){
       <div class="sw-list">${eq.software.length ? eq.software.map(swRowHTML).join('') : '<div class="sw-row"><span class="meta">Sin registros</span></div>'}</div>
     </div>
   `;
+}
+
+function openDetail(id){
+  const eq = EQUIPOS.find(e => e.id === id);
+  if (!eq) return;
+  document.getElementById('detId').textContent = eq.id;
+  document.getElementById('detModel').textContent = eq.modelo + ' — ' + eq.marca;
+  document.getElementById('detFamily').textContent = eq.familia;
+  document.getElementById('detBody').innerHTML = fichaEquipoBodyHTML(eq);
   document.getElementById('overlay').classList.add('open');
 }
 document.getElementById('closeDetail').addEventListener('click', () => document.getElementById('overlay').classList.remove('open'));
@@ -2253,20 +2334,293 @@ const licEmpleadosSlider = setupCurveSlider(document.getElementById('licEmpleado
 const licPuertasSlider = setupCurveSlider(document.getElementById('licPuertasRange'), document.getElementById('licPuertasVal'), 100, v => { licState.puertas = v; render(); });
 const licAppsSlider = setupCurveSlider(document.getElementById('licAppsRange'), document.getElementById('licAppsVal'), 800, v => { licState.apps = v; render(); });
 
+/* =========================== BUSCADOR ===========================
+   Módulo aparte para cuando el cliente ya tiene un equipo o una licencia: se escribe la clave
+   o el nombre (o se elige un software) y se muestra su ficha completa con lo compatible,
+   marcado en azul (acceso) o verde (asistencia). Toma todo de la misma base de datos.
+   Cada ficha tiene un enlace propio (#buscar=tipo:clave) para poder mandarla. */
+const normBusqueda = s => (s ?? '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+const escBusc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+let buscadorSel = null;      // { tipo: 'equipo'|'licencia'|'software', id }
+let buscadorIndex = [];
+let buscadorIndexSrc = null;
+let sugActuales = [];
+
+const GRUPOS_LIC_BUSC = [
+  ['tipo-asistencia', 'Asistencia', 'La asistencia se registra por medio del software (módulo de Asistencia); el acceso lo resuelve el equipo.'],
+  ['tipo-acceso', 'Acceso', 'El equipo se agrega al software como dispositivo de acceso; la asistencia te la da el módulo de Asistencia del mismo software.'],
+  ['tipo-ambos', 'Acceso + Asistencia', 'Una sola licencia cubre los dos módulos.'],
+];
+const GRUPOS_EQ_BUSC = [
+  ['tipo-asistencia', 'Se agregan como asistencia', 'La asistencia se registra por medio del software (módulo de Asistencia).'],
+  ['tipo-acceso', 'Se agregan como acceso', 'El equipo se agrega al software como dispositivo de acceso; la asistencia te la da el módulo de Asistencia del mismo software.'],
+  ['tipo-ambos', 'Se agregan como acceso y como asistencia', 'El equipo está dado de alta en los dos módulos del software.'],
+];
+
+function softwaresBuscador(){
+  return [...new Set([...LICENCIAS.map(l => l.software), ...SOFTWARE_LIST.map(x => x.nombre)].filter(Boolean))].sort();
+}
+
+function buildBuscadorIndex(){
+  const idx = [];
+  EQUIPOS.forEach(eq => idx.push({ tipo: 'equipo', id: eq.id, label: eq.modelo, sub: `Equipo · ${eq.id}`, hay: normBusqueda(`${eq.id} ${eq.modelo} ${eq.familia || ''}`), key: normBusqueda(eq.id) }));
+  LICENCIAS.forEach(l => idx.push({ tipo: 'licencia', id: l.id, label: l.nombre, sub: `${l.clave || 'sin clave'} · ${l.software}`, hay: normBusqueda(`${l.clave || ''} ${l.nombre} ${l.software}`), key: normBusqueda(l.clave || l.nombre) }));
+  softwaresBuscador().forEach(sw => idx.push({ tipo: 'software', id: sw, label: sw, sub: 'Software', hay: normBusqueda(sw), key: normBusqueda(sw) }));
+  return idx;
+}
+
+function buscarEnIndice(q){
+  const nq = normBusqueda(q);
+  if (nq.length < 2) return [];
+  if (buscadorIndexSrc !== EQUIPOS + '|' + LICENCIAS.length){ buscadorIndex = buildBuscadorIndex(); buscadorIndexSrc = EQUIPOS + '|' + LICENCIAS.length; }
+  const out = [];
+  buscadorIndex.forEach(e => {
+    if (!e.hay.includes(nq)) return;
+    out.push({ e, score: e.key === nq ? 0 : e.key.startsWith(nq) ? 1 : e.hay.startsWith(nq) ? 2 : 3 });
+  });
+  out.sort((a, b) => a.score - b.score || a.e.label.localeCompare(b.e.label));
+  return out.slice(0, 14).map(x => x.e);
+}
+
+function etiquetaTipoBusc(t){ return t === 'equipo' ? 'EQUIPO' : t === 'licencia' ? 'LICENCIA' : 'SOFTWARE'; }
+
+function renderBuscadorSugerencias(){
+  const box = document.getElementById('buscadorSugerencias');
+  const q = document.getElementById('buscadorInput').value;
+  if (!q.trim()){ box.style.display = 'none'; sugActuales = []; return; }
+  sugActuales = buscarEnIndice(q);
+  box.innerHTML = sugActuales.length
+    ? sugActuales.map((e, i) => `<button class="sug-item" data-sug="${i}"><span class="sug-tipo sug-${e.tipo}">${etiquetaTipoBusc(e.tipo)}</span><span class="sug-label">${escBusc(e.label)}</span><span class="sug-sub">${escBusc(e.sub)}</span></button>`).join('')
+    : `<div class="sug-empty">${normBusqueda(q).length < 2 ? 'Escribe al menos 2 caracteres…' : 'Sin coincidencias para "' + escBusc(q) + '"'}</div>`;
+  box.style.display = 'block';
+}
+
+function etiquetaSeleccion(tipo, id){
+  if (tipo === 'equipo'){ const e = EQUIPOS.find(x => x.id === id); return e ? e.modelo : id; }
+  if (tipo === 'licencia'){ const l = LICENCIAS.find(x => x.id === id); return l ? l.nombre : id; }
+  return id;
+}
+
+function actualizarHashBuscador(){
+  if (!buscadorSel) return;
+  const h = `#buscar=${buscadorSel.tipo}:${encodeURIComponent(buscadorSel.id)}`;
+  try { history.replaceState(null, '', h); } catch (e) { try { location.hash = h; } catch (e2) {} }
+}
+
+function irABuscador(tipo, id){
+  buscadorSel = { tipo, id };
+  document.getElementById('buscadorInput').value = etiquetaSeleccion(tipo, id);
+  document.getElementById('buscadorSugerencias').style.display = 'none';
+  actualizarHashBuscador();
+  renderBuscadorResultado();
+  document.getElementById('buscadorView').scrollIntoView({ block: 'start' });
+}
+
+function abrirBuscadorDesdeHash(){
+  const m = /^#buscar=(equipo|licencia|software):(.+)$/.exec(location.hash || '');
+  if (!m) return;
+  buscadorSel = { tipo: m[1], id: decodeURIComponent(m[2]) };
+  document.getElementById('buscadorInput').value = etiquetaSeleccion(buscadorSel.tipo, buscadorSel.id);
+  irAModo('buscador');
+}
+
+function copiarEnlaceBuscador(btn){
+  if (!buscadorSel) return;
+  const url = location.href.split('#')[0] + `#buscar=${buscadorSel.tipo}:${encodeURIComponent(buscadorSel.id)}`;
+  const ok = () => { const t = btn.textContent; btn.textContent = '✓ Enlace copiado'; setTimeout(() => { btn.textContent = t; }, 1800); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, () => window.prompt('Copia este enlace:', url));
+  else window.prompt('Copia este enlace:', url);
+}
+
+const PLACEHOLDER_SVG = '<span class="placeholder-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/><path d="M8 5l1.5-2h5L16 5"/></svg></span>';
+function imagenFichaHTML(imagen, enlace, alt, stamp){
+  const href = enlace && enlace !== '#' ? enlace : '#';
+  return `<div class="ficha-img"><a class="card-image-link" href="${escBusc(href)}" target="_blank" rel="noopener" title="Ver en el catálogo">${stamp || ''}${PLACEHOLDER_SVG}${imagen ? `<img src="${escBusc(imagen)}" alt="${escBusc(alt)}" onload="this.parentElement.classList.add('has-img')" onerror="this.style.display='none'">` : ''}</a></div>`;
+}
+function accionesFichaHTML(enlace, extra){
+  return `<div class="ficha-actions">
+    ${enlace && enlace !== '#' ? `<a class="ficha-btn" href="${escBusc(enlace)}" target="_blank" rel="noopener">Ver en catálogo ↗</a>` : ''}
+    ${extra || ''}
+    <button class="ficha-btn ghost" data-copiar-enlace>🔗 Copiar enlace de esta ficha</button>
+  </div>`;
+}
+function leyendaColoresHTML(){
+  return `<div class="tipo-legend" style="margin:0 0 8px;"><span><i style="background:var(--blue)"></i>Acceso</span><span><i style="background:var(--good)"></i>Asistencia</span></div>`;
+}
+function gruposHTML(items, grupos, filaFn){
+  // items: [{ cls, ...datos }] -> secciones por tipo (azul / verde / ambos) con su nota
+  return grupos.map(([cls, titulo, nota]) => {
+    const sub = items.filter(it => it.cls === cls);
+    if (!sub.length) return '';
+    return `<div class="compat-group"><h5>${titulo} (${sub.length})</h5><p class="tipo-note" style="margin:0 0 8px;">${nota}</p>${sub.map(filaFn).join('')}</div>`;
+  }).join('');
+}
+
+function fichaEquipoBuscador(eq){
+  const lics = LICENCIAS.filter(l => TIPOS_VISIBLES_EN_LISTA.includes(l.tipo) && equipoCompatibleConLicencia(eq, l))
+    .map(l => ({ lic: l, cls: claseTipoPorModos(modosDeEquipoParaLicencias(eq, [l])) || 'tipo-ambos' }));
+  const filaLic = ({ lic, cls }) => `<div class="compat-row clickable ${cls}" data-buscar-lic="${escBusc(lic.id)}"><span class="name">${escBusc(lic.nombre)}</span><span class="meta">${escBusc(lic.software)} · ${escBusc(lic.clave || 'sin clave')}${lic.capacidad ? ' · ' + escBusc(lic.capacidad) : ''}</span></div>`;
+  return `<div class="ficha">
+    <div class="ficha-top">
+      ${imagenFichaHTML(eq.imagen, eq.enlace, eq.modelo, statusStamp(eq))}
+      <div class="ficha-info">
+        <div class="card-id">${escBusc(eq.id)} · EQUIPO</div>
+        <h2>${escBusc(eq.modelo)}</h2>
+        <div class="ficha-meta">${escBusc(eq.marca || '')}${eq.familia ? ' · ' + escBusc(eq.familia) : ''}<br>Uso: ${escBusc(eq.comunicacion.usosPosibles.join(' + ') || 's/d')}</div>
+        ${accionesFichaHTML(eq.enlace)}
+      </div>
+    </div>
+    <div class="ficha-section">
+      <h3>Licencias compatibles (${lics.length})</h3>
+      <p class="ficha-nota">Licencias base, suscripciones y gratuitas de los softwares con los que este equipo ya está dado de alta. Las de aumento y de apps se consultan desde el módulo Licencias. Haz clic en una para ver su ficha.</p>
+      ${lics.length ? leyendaColoresHTML() + gruposHTML(lics, GRUPOS_LIC_BUSC, filaLic) : '<div class="basket-empty">Este equipo no tiene software compatible registrado en la tabla maestra.</div>'}
+    </div>
+    <div class="ficha-body">${fichaEquipoBodyHTML(eq)}</div>
+  </div>`;
+}
+
+function equiposCompatiblesDeLicencia(lic){
+  return EQUIPOS.filter(eq => equipoCompatibleConLicencia(eq, lic))
+    .map(eq => ({ eq, cls: claseTipoPorModos(modosDeEquipoParaLicencias(eq, [lic])) || 'tipo-ambos' }));
+}
+function fichaLicenciaBuscador(lic){
+  const eqs = equiposCompatiblesDeLicencia(lic);
+  const fila = ({ eq, cls }) => `<div class="compat-row clickable ${cls}" data-buscar-eq="${escBusc(eq.id)}"><span class="name">${escBusc(eq.modelo)}</span><span class="meta">${escBusc(eq.id)} · ${eq.usuarios.toLocaleString()} usuarios</span></div>`;
+  const swInfo = `<button class="ficha-btn ghost" data-buscar-sw="${escBusc(lic.software)}">Ver software: ${escBusc(lic.software)}</button>`;
+  return `<div class="ficha">
+    <div class="ficha-top">
+      ${imagenFichaHTML(lic.imagen, lic.enlace, lic.nombre)}
+      <div class="ficha-info">
+        <div class="card-id">${escBusc(lic.clave || 'Sin clave TVC')} · LICENCIA</div>
+        <h2>${escBusc(lic.nombre)}</h2>
+        <div class="ficha-meta">${escBusc(lic.software)}${lic.modulo ? ' · ' + escBusc(lic.modulo) : ''}${lic.capacidad ? '<br>' + escBusc(lic.capacidad) : ''}</div>
+        ${accionesFichaHTML(lic.enlace, swInfo)}
+      </div>
+    </div>
+    <div class="ficha-section">
+      <h3>Detalles</h3>
+      <div class="spec-grid" style="margin-top:8px;">
+        ${specItem('Tipo', lic.tipo || 's/d', false)}
+        ${specItem('Vigencia', lic.vigencia || 's/d', false)}
+        ${lic.checadores !== null ? specItem('Checadores', fmtCapacidad(lic.checadores), false) : ''}
+        ${lic.empleados !== null ? specItem('Empleados', fmtCapacidad(lic.empleados), false) : ''}
+        ${lic.puertas !== null ? specItem('Puertas', fmtCapacidad(lic.puertas), false) : ''}
+        ${lic.app !== null ? specItem('Apps', lic.app === Infinity ? 'Ilimitadas' : lic.app.toLocaleString(), false) : ''}
+      </div>
+      ${lic.requiere ? `<div class="lector-warning" style="margin-top:10px;"><span class="lector-warning-icon">⚠</span><div><strong>Requiere</strong><span>${escBusc(lic.requiere)}</span></div></div>` : ''}
+      ${lic.notas ? `<p class="ficha-nota" style="margin-top:10px; white-space:pre-line;">${escBusc(lic.notas)}</p>` : ''}
+    </div>
+    <div class="ficha-section">
+      <h3>Equipos compatibles (${eqs.length})</h3>
+      <p class="ficha-nota">Equipos dados de alta en el software de esta licencia, marcados según el modo en que se agregan. Haz clic en uno para ver su ficha.</p>
+      ${eqs.length ? leyendaColoresHTML() + gruposHTML(eqs, GRUPOS_EQ_BUSC, fila) : '<div class="basket-empty">Ningún equipo de la tabla maestra está registrado como compatible con este software.</div>'}
+    </div>
+  </div>`;
+}
+
+function fichaSoftwareBuscador(nombre){
+  const info = LIC_SOFTWARE.find(r => normName(r['Software']) === normName(nombre)) || {};
+  const lics = LICENCIAS.filter(l => normName(l.software) === normName(nombre));
+  const asis = [], acc = [];
+  EQUIPOS.forEach(eq => {
+    const filas = eq.software.filter(x => normName(x.nombre) === normName(nombre));
+    if (!filas.length) return;
+    if (filas.some(x => normName(x.modulo) === 'asistencia')) asis.push({ eq, cls: 'tipo-asistencia' });
+    if (filas.some(x => normName(x.modulo) === 'acceso')) acc.push({ eq, cls: 'tipo-acceso' });
+  });
+  const fila = ({ eq, cls }) => `<div class="compat-row clickable ${cls}" data-buscar-eq="${escBusc(eq.id)}"><span class="name">${escBusc(eq.modelo)}</span><span class="meta">${escBusc(eq.id)} · ${eq.usuarios.toLocaleString()} usuarios</span></div>`;
+  const filaLic = l => `<div class="compat-row clickable ${claseTipoPorModos(new Set([normName(l.modulo || '').includes('acceso') ? 'acceso' : null, normName(l.modulo || '').includes('asistencia') ? 'asistencia' : null].filter(Boolean)))}" data-buscar-lic="${escBusc(l.id)}"><span class="name">${escBusc(l.nombre)}</span><span class="meta">${escBusc(l.tipo || '')} · ${escBusc(l.clave || 'sin clave')}${l.capacidad ? ' · ' + escBusc(l.capacidad) : ''}</span></div>`;
+  const notas = (info['Notas'] || '').split('\n').map(x => x.trim()).filter(Boolean);
+  return `<div class="ficha">
+    <div class="ficha-top">
+      <div class="ficha-info">
+        <div class="card-id">SOFTWARE${info['Despliegue'] ? ' · ' + escBusc(info['Despliegue']).toUpperCase() : ''}</div>
+        <h2>${escBusc(nombre)}</h2>
+        <div class="ficha-meta">${escBusc(info['Descripción'] || 'Sin descripción registrada en la tabla maestra.')}</div>
+        ${accionesFichaHTML(null)}
+      </div>
+    </div>
+    ${notas.length ? `<div class="ficha-section"><h3>Puntos importantes</h3><ul class="ficha-notas">${notas.map(n => `<li>${escBusc(n)}</li>`).join('')}</ul></div>` : ''}
+    <div class="ficha-section">
+      <h3>Equipos compatibles (${new Set([...asis, ...acc].map(x => x.eq.id)).size})</h3>
+      <p class="ficha-nota">Separados según el módulo del software en el que se agregan. Un equipo dado de alta en ambos módulos aparece en los dos grupos.</p>
+      ${leyendaColoresHTML()}
+      ${gruposHTML(asis, GRUPOS_EQ_BUSC.slice(0, 1), fila)}
+      ${gruposHTML(acc, GRUPOS_EQ_BUSC.slice(1, 2), fila)}
+      ${!asis.length && !acc.length ? '<div class="basket-empty">Ningún equipo de la tabla maestra está registrado como compatible con este software.</div>' : ''}
+    </div>
+    <div class="ficha-section">
+      <h3>Licencias de este software (${lics.length})</h3>
+      ${lics.length ? leyendaColoresHTML() + lics.map(filaLic).join('') : '<div class="basket-empty">Sin licencias registradas.</div>'}
+    </div>
+  </div>`;
+}
+
+function renderBuscadorResultado(){
+  const cont = document.getElementById('buscadorResultado');
+  if (!buscadorSel){
+    cont.innerHTML = `<div class="buscador-hint">Empieza a escribir arriba, o elige un software.<br>Por ejemplo: la clave de un equipo (<b>ZKT0810095</b>), el nombre de un modelo (<b>SenseFace 7A</b>) o la clave de una licencia (<b>ZKT0820004</b>).</div>`;
+    return;
+  }
+  let html = '';
+  if (buscadorSel.tipo === 'equipo'){ const eq = EQUIPOS.find(e => e.id === buscadorSel.id); if (eq) html = fichaEquipoBuscador(eq); }
+  else if (buscadorSel.tipo === 'licencia'){ const l = LICENCIAS.find(x => x.id === buscadorSel.id); if (l) html = fichaLicenciaBuscador(l); }
+  else if (buscadorSel.tipo === 'software'){ html = fichaSoftwareBuscador(buscadorSel.id); }
+  cont.innerHTML = html || `<div class="buscador-hint">No se encontró "${escBusc(buscadorSel.id)}" en la tabla maestra.</div>`;
+}
+
+function renderBuscador(){
+  document.getElementById('buscadorChips').innerHTML = softwaresBuscador().map(sw => `<button class="chip ${buscadorSel && buscadorSel.tipo === 'software' && buscadorSel.id === sw ? 'active' : ''}" data-buscar-sw="${escBusc(sw)}">${escBusc(sw)}</button>`).join('');
+  renderBuscadorResultado();
+}
+
+(function conectarBuscador(){
+  const input = document.getElementById('buscadorInput');
+  const box = document.getElementById('buscadorSugerencias');
+  input.addEventListener('input', renderBuscadorSugerencias);
+  input.addEventListener('focus', () => { if (input.value.trim()) renderBuscadorSugerencias(); });
+  input.addEventListener('blur', () => { setTimeout(() => { box.style.display = 'none'; }, 120); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && sugActuales.length){ e.preventDefault(); const f = sugActuales[0]; irABuscador(f.tipo, f.id); }
+    else if (e.key === 'Escape'){ box.style.display = 'none'; }
+  });
+  box.addEventListener('mousedown', e => {
+    const b = e.target.closest('[data-sug]');
+    if (!b) return;
+    e.preventDefault();
+    const f = sugActuales[Number(b.dataset.sug)];
+    if (f) irABuscador(f.tipo, f.id);
+  });
+  document.getElementById('buscadorView').addEventListener('click', e => {
+    const t = e.target.closest('[data-buscar-eq],[data-buscar-lic],[data-buscar-sw],[data-copiar-enlace]');
+    if (!t) return;
+    if (t.hasAttribute('data-copiar-enlace')) copiarEnlaceBuscador(t);
+    else if (t.dataset.buscarEq) irABuscador('equipo', t.dataset.buscarEq);
+    else if (t.dataset.buscarLic) irABuscador('licencia', t.dataset.buscarLic);
+    else if (t.dataset.buscarSw) irABuscador('software', t.dataset.buscarSw);
+  });
+})();
+
 /* =========================== NAVEGACIÓN: pantalla inicial, modo y volver a inicio =========================== */
 function irAModo(mode){
   appMode = mode;
+  const esBuscador = mode === 'buscador';
   document.getElementById('landingScreen').style.display = 'none';
-  document.getElementById('mainLayout').style.display = 'grid';
+  document.getElementById('mainLayout').style.display = esBuscador ? 'none' : 'grid';
+  document.getElementById('buscadorView').style.display = esBuscador ? 'block' : 'none';
   document.getElementById('homeBtn').style.display = '';
   document.getElementById('modeToggle').style.display = 'flex';
-  document.getElementById('basketPill').style.display = '';
-  document.getElementById('basketClearHeader').style.display = '';
+  // La canasta no aplica en el Buscador (es solo consulta de fichas)
+  document.getElementById('basketPill').style.display = esBuscador ? 'none' : '';
+  document.getElementById('basketClearHeader').style.display = esBuscador ? 'none' : '';
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-  document.getElementById('filtersBody').style.display = mode === 'equipos' ? 'block' : 'none';
-  document.getElementById('filtersBodyLicencias').style.display = mode === 'licencias' ? 'block' : 'none';
-  document.getElementById('filtersHeadTitle').textContent = mode === 'equipos' ? 'Filtros del proyecto' : 'Filtros de licencias';
-  if (mode === 'licencias') syncLicSliderVisibility();
+  if (!esBuscador){
+    document.getElementById('filtersBody').style.display = mode === 'equipos' ? 'block' : 'none';
+    document.getElementById('filtersBodyLicencias').style.display = mode === 'licencias' ? 'block' : 'none';
+    document.getElementById('filtersHeadTitle').textContent = mode === 'equipos' ? 'Filtros del proyecto' : 'Filtros de licencias';
+    if (mode === 'licencias') syncLicSliderVisibility();
+    if ((location.hash || '').startsWith('#buscar=')){ try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+  }
   updateBasketCount();
   render();
 }
@@ -2284,6 +2638,7 @@ document.querySelectorAll('.mode-btn').forEach(btn => {
 
 document.getElementById('homeBtn').addEventListener('click', () => {
   document.getElementById('mainLayout').style.display = 'none';
+  document.getElementById('buscadorView').style.display = 'none';
   document.getElementById('landingScreen').style.display = 'flex';
   document.getElementById('homeBtn').style.display = 'none';
   document.getElementById('modeToggle').style.display = 'none';
@@ -2409,6 +2764,7 @@ window.addEventListener('scroll', () => { globalTooltip.classList.remove('show')
 
 /* =========================== INIT =========================== */
 loadWorkbookJSON(DEFAULT_WORKBOOK_JSON); // catálogo de respaldo, visible de inmediato
+abrirBuscadorDesdeHash(); // si la página se abrió con un enlace de ficha (#buscar=...), entra directo al Buscador
 tryAutoLoadCatalog(); // intenta reemplazarlo con catalogo_zkteco.json de la carpeta raíz
 </script>
 </body>
