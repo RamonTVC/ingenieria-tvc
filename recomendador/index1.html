@@ -635,6 +635,66 @@ footer.pagefoot{
 .compat-row.clickable{cursor:pointer;}
 .compat-row.clickable:hover{background:var(--accent-soft);}
 .ficha-notas{margin:0; padding-left:18px; font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
+
+/* ---------- PDF / IMPRESIÓN y COMPARADOR ---------- */
+.basket-foot{flex-wrap:wrap; align-items:center;}
+#basketPrintBtn, #compararPrintBtn{background:var(--accent); color:#fff;}
+#basketPrintBtn:hover, #compararPrintBtn:hover{background:var(--accent-ink);}
+#compararCloseBtn{background:var(--ink); color:#fff;}
+#compararCloseBtn:hover{background:var(--accent-ink);}
+.cmp-diff{font-size:12px; color:var(--ink-soft); display:flex; align-items:center; gap:6px; cursor:pointer;}
+.detail.wide{max-width:1100px;}
+.comparar-tray{
+  display:none; margin-top:14px; background:#fff; border:1px solid var(--line-strong); border-radius:10px;
+  padding:10px 12px; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px;
+}
+.comparar-tray .tray-title{font-weight:700; margin-right:4px;}
+.comparar-tray .tray-btn{
+  border:none; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:600; cursor:pointer;
+  background:var(--accent); color:#fff; font-family:var(--font-body);
+}
+.comparar-tray .tray-btn.ghost{background:#eef1f3; color:var(--ink-soft);}
+.comparar-tray .tray-btn:disabled{opacity:.45; cursor:not-allowed;}
+.cmp-btn{
+  margin-left:8px; border:none; background:#e7edf0; color:var(--ink-soft); border-radius:6px;
+  padding:3px 8px; font-size:11px; cursor:pointer; flex:none;
+}
+.cmp-btn.on, .ficha-btn.on{background:var(--accent); color:#fff;}
+.cmp-wrap{overflow-x:auto;}
+.cmp-table{border-collapse:collapse; width:100%; font-size:12.5px; min-width:620px;}
+.cmp-table th, .cmp-table td{border-bottom:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top;}
+.cmp-table thead th{vertical-align:bottom;}
+.cmp-table tbody th{font-weight:500; color:var(--ink-soft); width:170px; background:#fafbfc; position:sticky; left:0;}
+.cmp-table td{white-space:pre-line;}
+.cmp-table td.yes{color:var(--good); font-weight:600;}
+.cmp-table td.no{color:var(--ink-faint);}
+.cmp-sec td{background:var(--ink); color:#fff; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.5px; padding:5px 10px; white-space:normal;}
+.cmp-row.diff td{background:#fff8e8;}
+.cmp-img{width:84px; height:84px; object-fit:contain; display:block; margin-bottom:6px; background:#f1f5f6; border-radius:8px;}
+.cmp-name{font-family:var(--font-display); font-weight:600; font-size:14px;}
+.cmp-id{font-family:var(--font-mono); font-size:10.5px; color:var(--ink-faint);}
+.cmp-nota{font-size:11.5px; color:var(--ink-soft); margin:10px 2px 0;}
+
+#printArea{display:none;}
+@media print{
+  html, body{background:#fff !important; overflow:visible !important; max-width:none !important;}
+  body > *:not(#printArea){display:none !important;}
+  #printArea{display:block !important; color:#16283a; font-family:var(--font-body);}
+  #printArea, #printArea *{-webkit-print-color-adjust:exact; print-color-adjust:exact;}
+  .print-head{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--accent); padding-bottom:8px; margin-bottom:14px;}
+  .print-brand{font-family:var(--font-mono); font-size:10px; letter-spacing:.6px; text-transform:uppercase; color:var(--ink-soft);}
+  .print-head h1{font-family:var(--font-display); font-size:20px; margin:2px 0 0;}
+  .print-head p{font-size:11px; color:var(--ink-soft); margin:3px 0 0;}
+  .print-fecha{font-family:var(--font-mono); font-size:10px; color:var(--ink-soft); white-space:nowrap;}
+  .print-nota{font-size:10px; color:var(--ink-soft); margin-top:16px; border-top:1px solid var(--line); padding-top:6px;}
+  #printArea .compat-row, #printArea .spec-item, #printArea .cmp-table tr{break-inside:avoid;}
+  #printArea .spec-block h4, #printArea .compat-group h5{break-after:avoid;}
+  #printArea .cmp-table{font-size:9.5px; min-width:0;}
+  #printArea .cmp-table thead{display:table-header-group;}
+  #printArea .cmp-table tbody th{position:static;}
+  #printArea .cmp-img{width:60px; height:60px;}
+  #printArea .basket-chip{border:1px solid var(--line-strong);}
+}
 </style>
 </head>
 <body>
@@ -917,6 +977,23 @@ footer.pagefoot{
   </main>
 </div>
 
+<div class="overlay" id="compararOverlay">
+  <div class="detail wide">
+    <div class="detail-head">
+      <button id="closeComparar">×</button>
+      <span class="card-id" style="color:#a9bcc7;">COMPARACIÓN</span>
+      <h3>Comparación de equipos</h3>
+      <span class="card-family">Hasta 4 equipos · datos de la tabla maestra</span>
+    </div>
+    <div class="detail-body" id="compararBody"></div>
+    <div class="basket-foot">
+      <label class="cmp-diff"><input type="checkbox" id="compararSoloDif"> Mostrar solo diferencias</label>
+      <button id="compararPrintBtn">🖨 Descargar PDF / imprimir</button>
+      <button id="compararCloseBtn">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <div id="buscadorView" style="display:none;">
   <div class="buscador-wrap">
     <h2 class="buscador-title">Buscador</h2>
@@ -926,6 +1003,7 @@ footer.pagefoot{
       <div id="buscadorSugerencias" class="buscador-sug"></div>
     </div>
     <div class="buscador-chips"><span class="buscador-chips-label">Software:</span><span id="buscadorChips"></span></div>
+    <div id="compararTray" class="comparar-tray"></div>
     <div id="buscadorResultado"></div>
   </div>
 </div>
@@ -957,6 +1035,7 @@ footer.pagefoot{
     <div class="detail-body" id="basketBody"></div>
     <div class="basket-foot">
       <button id="basketClearModal">🗑 Vaciar canasta</button>
+      <button id="basketPrintBtn">🖨 Descargar PDF / imprimir</button>
       <button id="basketCloseBtn">Cerrar</button>
     </div>
   </div>
@@ -2467,7 +2546,7 @@ function fichaEquipoBuscador(eq){
         <div class="card-id">${escBusc(eq.id)} · EQUIPO</div>
         <h2>${escBusc(eq.modelo)}</h2>
         <div class="ficha-meta">${escBusc(eq.marca || '')}${eq.familia ? ' · ' + escBusc(eq.familia) : ''}<br>Uso: ${escBusc(eq.comunicacion.usosPosibles.join(' + ') || 's/d')}</div>
-        ${accionesFichaHTML(eq.enlace)}
+        ${accionesFichaHTML(eq.enlace, `<button class="ficha-btn ghost" data-comparar-eq="${escBusc(eq.id)}">⚖️ Agregar a comparar</button>`)}
       </div>
     </div>
     <div class="ficha-section">
@@ -2485,7 +2564,7 @@ function equiposCompatiblesDeLicencia(lic){
 }
 function fichaLicenciaBuscador(lic){
   const eqs = equiposCompatiblesDeLicencia(lic);
-  const fila = ({ eq, cls }) => `<div class="compat-row clickable ${cls}" data-buscar-eq="${escBusc(eq.id)}"><span class="name">${escBusc(eq.modelo)}</span><span class="meta">${escBusc(eq.id)} · ${eq.usuarios.toLocaleString()} usuarios</span></div>`;
+  const fila = ({ eq, cls }) => `<div class="compat-row clickable ${cls}" data-buscar-eq="${escBusc(eq.id)}"><span class="name">${escBusc(eq.modelo)}</span><span class="meta">${escBusc(eq.id)} · ${eq.usuarios.toLocaleString()} usuarios</span><button class="cmp-btn" data-comparar-eq="${escBusc(eq.id)}" title="Agregar a comparar">⚖</button></div>`;
   const swInfo = `<button class="ficha-btn ghost" data-buscar-sw="${escBusc(lic.software)}">Ver software: ${escBusc(lic.software)}</button>`;
   return `<div class="ficha">
     <div class="ficha-top">
@@ -2528,7 +2607,7 @@ function fichaSoftwareBuscador(nombre){
     if (filas.some(x => normName(x.modulo) === 'asistencia')) asis.push({ eq, cls: 'tipo-asistencia' });
     if (filas.some(x => normName(x.modulo) === 'acceso')) acc.push({ eq, cls: 'tipo-acceso' });
   });
-  const fila = ({ eq, cls }) => `<div class="compat-row clickable ${cls}" data-buscar-eq="${escBusc(eq.id)}"><span class="name">${escBusc(eq.modelo)}</span><span class="meta">${escBusc(eq.id)} · ${eq.usuarios.toLocaleString()} usuarios</span></div>`;
+  const fila = ({ eq, cls }) => `<div class="compat-row clickable ${cls}" data-buscar-eq="${escBusc(eq.id)}"><span class="name">${escBusc(eq.modelo)}</span><span class="meta">${escBusc(eq.id)} · ${eq.usuarios.toLocaleString()} usuarios</span><button class="cmp-btn" data-comparar-eq="${escBusc(eq.id)}" title="Agregar a comparar">⚖</button></div>`;
   const filaLic = l => `<div class="compat-row clickable ${claseTipoPorModos(new Set([normName(l.modulo || '').includes('acceso') ? 'acceso' : null, normName(l.modulo || '').includes('asistencia') ? 'asistencia' : null].filter(Boolean)))}" data-buscar-lic="${escBusc(l.id)}"><span class="name">${escBusc(l.nombre)}</span><span class="meta">${escBusc(l.tipo || '')} · ${escBusc(l.clave || 'sin clave')}${l.capacidad ? ' · ' + escBusc(l.capacidad) : ''}</span></div>`;
   const notas = (info['Notas'] || '').split('\n').map(x => x.trim()).filter(Boolean);
   return `<div class="ficha">
@@ -2572,6 +2651,7 @@ function renderBuscadorResultado(){
 function renderBuscador(){
   document.getElementById('buscadorChips').innerHTML = softwaresBuscador().map(sw => `<button class="chip ${buscadorSel && buscadorSel.tipo === 'software' && buscadorSel.id === sw ? 'active' : ''}" data-buscar-sw="${escBusc(sw)}">${escBusc(sw)}</button>`).join('');
   renderBuscadorResultado();
+  sincronizarComparar();
 }
 
 (function conectarBuscador(){
@@ -2592,14 +2672,200 @@ function renderBuscador(){
     if (f) irABuscador(f.tipo, f.id);
   });
   document.getElementById('buscadorView').addEventListener('click', e => {
-    const t = e.target.closest('[data-buscar-eq],[data-buscar-lic],[data-buscar-sw],[data-copiar-enlace]');
+    const t = e.target.closest('[data-buscar-eq],[data-buscar-lic],[data-buscar-sw],[data-copiar-enlace],[data-comparar-eq],[data-comparar-quitar],[data-comparar-abrir],[data-comparar-vaciar]');
     if (!t) return;
-    if (t.hasAttribute('data-copiar-enlace')) copiarEnlaceBuscador(t);
+    if (t.dataset.compararEq) toggleComparar(t.dataset.compararEq);
+    else if (t.dataset.compararQuitar) toggleComparar(t.dataset.compararQuitar);
+    else if (t.hasAttribute('data-comparar-abrir')) abrirComparacion();
+    else if (t.hasAttribute('data-comparar-vaciar')){ comparar = []; sincronizarComparar(); }
+    else if (t.hasAttribute('data-copiar-enlace')) copiarEnlaceBuscador(t);
     else if (t.dataset.buscarEq) irABuscador('equipo', t.dataset.buscarEq);
     else if (t.dataset.buscarLic) irABuscador('licencia', t.dataset.buscarLic);
     else if (t.dataset.buscarSw) irABuscador('software', t.dataset.buscarSw);
   });
 })();
+
+/* =========================== COMPARADOR DE EQUIPOS (Buscador) ===========================
+   Hasta 4 equipos en memoria (se vacía al recargar, igual que las canastas). La comparación
+   se ve en una ventana aparte y se puede bajar/imprimir en PDF. NO forma parte del enlace de
+   ficha (#buscar=...): ese enlace sigue apuntando solo a la ficha individual. */
+const MAX_COMPARAR = 4;
+let comparar = [];
+
+function toggleComparar(id){
+  const i = comparar.indexOf(id);
+  if (i >= 0) comparar.splice(i, 1);
+  else {
+    if (comparar.length >= MAX_COMPARAR){ alert('Puedes comparar hasta 4 equipos a la vez. Quita uno para agregar otro.'); return; }
+    comparar.push(id);
+  }
+  sincronizarComparar();
+}
+
+function sincronizarComparar(){
+  document.querySelectorAll('[data-comparar-eq]').forEach(b => {
+    const on = comparar.includes(b.dataset.compararEq);
+    b.classList.toggle('on', on);
+    b.textContent = b.classList.contains('cmp-btn') ? (on ? '✓' : '⚖') : (on ? '✓ En comparación (quitar)' : '⚖️ Agregar a comparar');
+  });
+  renderCompararTray();
+}
+
+function renderCompararTray(){
+  const t = document.getElementById('compararTray');
+  comparar = comparar.filter(id => EQUIPOS.some(e => e.id === id));
+  if (!comparar.length){ t.style.display = 'none'; t.innerHTML = ''; return; }
+  t.style.display = 'flex';
+  t.innerHTML = `<span class="tray-title">⚖️ Comparar (${comparar.length}/${MAX_COMPARAR}):</span>`
+    + comparar.map(id => { const e = EQUIPOS.find(x => x.id === id); return `<span class="basket-chip">${escBusc(e.modelo)}<button data-comparar-quitar="${escBusc(id)}" title="Quitar">×</button></span>`; }).join('')
+    + `<button class="tray-btn" data-comparar-abrir ${comparar.length < 2 ? 'disabled title="Agrega al menos 2 equipos"' : ''}>Ver comparación</button>`
+    + `<button class="tray-btn ghost" data-comparar-vaciar>Vaciar</button>`;
+}
+
+function filasComparacion(){
+  const yn = v => v ? '✓ Sí' : '— No';
+  const n = v => v > 0 ? v.toLocaleString() : '—';
+  const t = v => v ? String(v) : '—';
+  const sw = eq => {
+    const m = new Map();
+    eq.software.forEach(x => { if (!m.has(x.nombre)) m.set(x.nombre, new Set()); if (x.modulo) m.get(x.nombre).add(x.modulo); });
+    return [...m].map(([k, v]) => `${k}${v.size ? ' (' + [...v].join(', ') + ')' : ''}`).join('\n') || '—';
+  };
+  const sec = titulo => ({ sec: titulo });
+  const f = (label, fn) => ({ label, fn });
+  return [
+    sec('Identificación'),
+    f('Marca', e => t(e.marca)), f('Familia', e => t(e.familia)),
+    f('Uso (nativo + alterno)', e => e.comunicacion.usosPosibles.join(' + ') || '—'), f('Estatus', e => t(e.estatus)),
+    sec('Capacidad y credenciales'),
+    f('Usuarios', e => n(e.usuarios)), f('Eventos (log)', e => n(e.eventos)),
+    f('Rostros', e => n(e.rostros)), f('Huellas', e => n(e.huellas)), f('Palmas', e => n(e.palmas)),
+    f('Tarjetas', e => n(e.tarjetas)),
+    f('Frecuencia de tarjeta', e => e.tarjetas > 0 ? (isFrecuenciaSegunLector(e.frecuencia) ? 'Según el lector' : t(e.frecuencia)) : '—'),
+    f('PIN', e => yn(e.pin)), f('Código QR', e => yn(e.qr)),
+    sec('Instalación y conectividad'),
+    f('Exterior', e => e.exterior ? '✓ Sí' + (e.ip ? ' (' + e.ip + ')' : '') : '— No'),
+    f('WiFi', e => yn(e.wifi)), f('PoE', e => yn(e.poe)), f('Chip celular (4G)', e => yn(e.celular)),
+    f('Batería de respaldo', e => e.bateria ? '✓ Sí' + ([e.bateriaCapacidad, e.bateriaDuracion].filter(Boolean).length ? ' (' + [e.bateriaCapacidad, e.bateriaDuracion].filter(Boolean).join(' · ') + ')' : '') : '— No'),
+    sec('Interfaz de hardware'),
+    ...Object.keys(EQUIPOS[0] ? EQUIPOS[0].interfaz : {}).map(k => f(k, e => yn(e.interfaz[k]))),
+    f('Cantidad de puertas', e => e.interfaz['Relé'] && e.puertas > 0 ? String(e.puertas) : '—'),
+    f('Requiere lector o módulo', e => t(e.requiereLectorModulo)),
+    sec('Comunicación'),
+    f('PUSH', e => yn(e.comunicacion.push)), f('PULL', e => yn(e.comunicacion.pull)), f('BEST', e => yn(e.comunicacion.best)),
+    f('Tipo nativo', e => t(e.comunicacion.tipoNativo)), f('Puede cambiar de tipo', e => yn(e.comunicacion.puedeCambiar)), f('Tipo alterno', e => t(e.comunicacion.tipoAlterno)),
+    sec('Presentación'),
+    f('Incluye gabinete', e => yn(e.incluyeGabinete)),
+    f('Clave con gabinete', e => t(e.claveAlterna)), f('Clave sin gabinete', e => t(e.claveSinGabinete)),
+    sec('Software compatible'),
+    f('Software (módulos)', sw),
+  ];
+}
+
+function tablaComparacionHTML(eqs, soloDif){
+  const celda = txt => `<td class="${txt.startsWith('✓') ? 'yes' : txt === '—' || txt.startsWith('— ') ? 'no' : ''}">${escBusc(txt)}</td>`;
+  let body = '', pendiente = null;
+  filasComparacion().forEach(fl => {
+    if (fl.sec){ pendiente = fl.sec; return; }
+    const vals = eqs.map(eq => fl.fn(eq));
+    const dif = new Set(vals).size > 1;
+    if (soloDif && !dif) return;
+    if (pendiente){ body += `<tr class="cmp-sec"><td colspan="${eqs.length + 1}">${escBusc(pendiente)}</td></tr>`; pendiente = null; }
+    body += `<tr class="cmp-row ${dif ? 'diff' : 'same'}"><th>${escBusc(fl.label)}</th>${vals.map(celda).join('')}</tr>`;
+  });
+  if (!body) body = `<tr><td colspan="${eqs.length + 1}" class="no">Los equipos no tienen diferencias en los datos comparados.</td></tr>`;
+  const head = eqs.map(eq => `<th>${eq.imagen ? `<img class="cmp-img" src="${escBusc(eq.imagen)}" alt="" onerror="this.style.display='none'">` : ''}<div class="cmp-name">${escBusc(eq.modelo)}</div><div class="cmp-id">${escBusc(eq.id)}</div></th>`).join('');
+  return `<div class="cmp-wrap"><table class="cmp-table"><thead><tr><th></th>${head}</tr></thead><tbody>${body}</tbody></table></div><p class="cmp-nota">Las filas con fondo ámbar son las que cambian entre los equipos.</p>`;
+}
+
+function equiposAComparar(){ return comparar.map(id => EQUIPOS.find(e => e.id === id)).filter(Boolean); }
+
+function renderComparacion(){
+  document.getElementById('compararBody').innerHTML = tablaComparacionHTML(equiposAComparar(), document.getElementById('compararSoloDif').checked);
+}
+
+function abrirComparacion(){
+  if (equiposAComparar().length < 2){ alert('Agrega al menos 2 equipos para compararlos.'); return; }
+  renderComparacion();
+  document.getElementById('compararOverlay').classList.add('open');
+}
+
+/* =========================== PDF / IMPRESIÓN ===========================
+   Se arma un documento limpio (#printArea) con encabezado y fecha, y se manda a imprimir; en
+   el diálogo del navegador se puede elegir "Guardar como PDF". Con @media print solo se ve
+   ese documento. Cada canasta (equipos / licencias) se imprime por separado, la que esté
+   abierta. */
+let tituloOriginal = null;
+function limpiarImpresion(){
+  const a = document.getElementById('printArea'); if (a) a.remove();
+  const st = document.getElementById('printPageStyle'); if (st) st.remove();
+  if (tituloOriginal !== null){ document.title = tituloOriginal; tituloOriginal = null; }
+}
+window.addEventListener('afterprint', limpiarImpresion);
+
+async function imprimirDocumento({ titulo, subtitulo, nodo, landscape }){
+  limpiarImpresion();
+  const area = document.createElement('div');
+  area.id = 'printArea';
+  area.innerHTML = `<div class="print-head"><div><div class="print-brand">Recomendador ZKTeco</div><h1>${escBusc(titulo)}</h1>${subtitulo ? `<p>${escBusc(subtitulo)}</p>` : ''}</div><div class="print-fecha">${escBusc(new Date().toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' }))}</div></div>`;
+  area.appendChild(nodo);
+  const nota = document.createElement('p');
+  nota.className = 'print-nota';
+  nota.textContent = 'Documento informativo: no incluye costos ni existencias. La compatibilidad se calcula con la tabla maestra vigente.';
+  area.appendChild(nota);
+  document.body.appendChild(area);
+  const st = document.createElement('style');
+  st.id = 'printPageStyle';
+  st.textContent = `@page{size:A4 ${landscape ? 'landscape' : 'portrait'}; margin:12mm;}`;
+  document.head.appendChild(st);
+  tituloOriginal = document.title;
+  document.title = `${titulo} - ZKTeco`;
+  const imgs = [...area.querySelectorAll('img')];
+  await Promise.all(imgs.map(im => im.complete ? null : new Promise(r => { im.addEventListener('load', r, { once: true }); im.addEventListener('error', r, { once: true }); setTimeout(r, 1500); })));
+  window.print();
+}
+
+function imprimirCanasta(){
+  const licencias = appMode === 'licencias';
+  if ((licencias ? basketLicencias.size : basketEquipos.size) === 0){ alert('La canasta está vacía: agrega algo antes de descargarla.'); return; }
+  renderBasketPanel();
+  const wrap = document.createElement('div');
+  wrap.innerHTML = document.getElementById('basketBody').innerHTML;
+  // Lo interactivo se convierte en texto: cantidades (xN), valores de la calculadora; los botones se quitan.
+  wrap.querySelectorAll('.qty-stepper').forEach(st => {
+    const b = document.createElement('b');
+    b.textContent = '×' + ((st.querySelector('span') || {}).textContent || '1').replace(/\D/g, '');
+    st.replaceWith(b);
+  });
+  const combo = wrap.querySelector('.combo-calc');
+  if (combo){
+    if (!(comboState.software && comboState.campo && comboState.objetivo > 0)) combo.remove();
+    else {
+      combo.querySelectorAll('select').forEach(el => { const sp = document.createElement('span'); sp.textContent = (el.options[el.selectedIndex] || {}).text || ''; sp.style.fontWeight = '600'; sp.style.marginRight = '10px'; el.replaceWith(sp); });
+      combo.querySelectorAll('input').forEach(el => { const sp = document.createElement('span'); sp.textContent = el.value; sp.style.fontWeight = '600'; el.replaceWith(sp); });
+    }
+  }
+  wrap.querySelectorAll('button').forEach(b => b.remove());
+  const subt = licencias
+    ? `${basketLicencias.size} licencia(s) en la canasta`
+    : `${basketEquipos.size} equipo(s) · ${[...basketEquipos.values()].reduce((a, x) => a + x.qty, 0)} unidad(es) en total`;
+  imprimirDocumento({ titulo: licencias ? 'Canasta de licencias' : 'Canasta de equipos', subtitulo: subt, nodo: wrap, landscape: false });
+}
+
+function imprimirComparacion(){
+  const eqs = equiposAComparar();
+  if (eqs.length < 2) return;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = tablaComparacionHTML(eqs, document.getElementById('compararSoloDif').checked);
+  imprimirDocumento({ titulo: 'Comparación de equipos', subtitulo: eqs.map(e => e.modelo).join(' · '), nodo: wrap, landscape: true });
+}
+
+document.getElementById('basketPrintBtn').addEventListener('click', imprimirCanasta);
+document.getElementById('compararPrintBtn').addEventListener('click', imprimirComparacion);
+document.getElementById('compararSoloDif').addEventListener('change', renderComparacion);
+document.getElementById('closeComparar').addEventListener('click', () => document.getElementById('compararOverlay').classList.remove('open'));
+document.getElementById('compararCloseBtn').addEventListener('click', () => document.getElementById('compararOverlay').classList.remove('open'));
+document.getElementById('compararOverlay').addEventListener('click', e => { if (e.target.id === 'compararOverlay') e.currentTarget.classList.remove('open'); });
 
 /* =========================== NAVEGACIÓN: pantalla inicial, modo y volver a inicio =========================== */
 function irAModo(mode){
