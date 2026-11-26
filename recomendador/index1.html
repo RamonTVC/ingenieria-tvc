@@ -1096,7 +1096,10 @@ function buildModel(wb){
   const software = wb.Software || [];
   const compat = wb.Compatibilidad || [];
 
-  const byId = (arr, key) => Object.fromEntries(arr.map(r => [r[key], r]));
+  // Los IDs se manejan SIEMPRE como texto: Excel puede guardar un ID como 74095 (número) en una
+  // hoja y como "74095" (texto) en otra, y los botones de la página siempre mandan texto.
+  const idTxt = v => (v === null || v === undefined) ? '' : String(v).trim();
+  const byId = (arr, key) => Object.fromEntries(arr.map(r => [idTxt(r[key]), r]));
   const ifaceById = byId(interfaz, 'ID Equipo');
   const commById = byId(comm, 'ID Equipo');
   const swById = byId(software, 'ID Software');
@@ -1104,10 +1107,10 @@ function buildModel(wb){
   SOFTWARE_LIST = software.map(s => ({ id: s['ID Software'], nombre: s['Software'], modulo: s['Módulo'], nivel: s['Nivel'] }));
 
   return equipos.map(e => {
-    const id = e.ID;
+    const id = idTxt(e.ID);
     const ifc = ifaceById[id] || {};
     const cm = commById[id] || {};
-    const swRows = compat.filter(c => c['ID Equipo'] === id).map(c => {
+    const swRows = compat.filter(c => idTxt(c['ID Equipo']) === id).map(c => {
       const sw = swById[c['ID Software']] || {};
       return {
         id: c['ID Software'], nombre: sw['Software'] || c['ID Software'],
@@ -1123,7 +1126,7 @@ function buildModel(wb){
     if (isSi(cm['Puede cambiar tipo']) && cm['Tipo alternativo']) usosPosibles.push(cm['Tipo alternativo']);
 
     return {
-      id, marca: e.Marca, modelo: e.Modelo, familia: e.Familia,
+      id, marca: e.Marca == null ? null : String(e.Marca), modelo: String(e.Modelo ?? ''), familia: e.Familia == null ? null : String(e.Familia),
       // "Imagen" y "Enlace" son columnas OPCIONALES de la hoja Equipos: si no existen en el
       // .xlsx, se arma una ruta por defecto ("img/<ID>.png") y un enlace de marcador de
       // posición. Fotos estándar de 300x300 px dentro de la carpeta /img junto al index.html.
@@ -1132,13 +1135,13 @@ function buildModel(wb){
       // Mismo panel, presentación con gabinete y fuente de poder incluidos: solo llena estas
       // 2 columnas si existe esa variante. Si las dejas vacías, no se muestra nada (igual que
       // Imagen/Enlace) — no hace falta un Sí/No aparte.
-      claveAlterna: e['Clave alterna con gabinete'] || null,
+      claveAlterna: e['Clave alterna con gabinete'] ? String(e['Clave alterna con gabinete']) : null,
       enlaceAlterno: e['Enlace alterno con gabinete'] || null,
       // Caso inverso: el equipo YA incluye gabinete y fuente de forma nativa, pero también
       // existe una versión pelona (sin gabinete). Solo se muestra el cuadro si "Incluye
       // Gabinete" = Sí Y además hay una clave capturada en "Clave sin gabinete".
       incluyeGabinete: isSi(e['Incluye Gabinete']),
-      claveSinGabinete: e['Clave sin gabinete'] || null,
+      claveSinGabinete: e['Clave sin gabinete'] ? String(e['Clave sin gabinete']) : null,
       enlaceSinGabinete: e['Enlace sin gabinete'] || null,
       // Sello visual en la esquina de la foto: "Outlet" / "En línea" / "Nuevo" (vacío = sin sello).
       estatus: e['Estatus'] || null,
@@ -1207,10 +1210,10 @@ const fmtCapacidad = v => v === Infinity ? 'Ilimitados' : v.toLocaleString();
 
 function buildLicenseModel(wbJson){
   return (wbJson.Licencias || []).map((r, i) => ({
-    id: r['Clave TVC'] || `${r['Software']}__${r['Licencia']}__${i}`,
-    clave: r['Clave TVC'] || null,
-    nombre: r['Licencia'],
-    software: r['Software'],
+    id: (r['Clave TVC'] !== null && r['Clave TVC'] !== undefined && String(r['Clave TVC']).trim() !== '') ? String(r['Clave TVC']).trim() : `${r['Software']}__${r['Licencia']}__${i}`,
+    clave: (r['Clave TVC'] !== null && r['Clave TVC'] !== undefined && String(r['Clave TVC']).trim() !== '') ? String(r['Clave TVC']).trim() : null,
+    nombre: String(r['Licencia'] ?? ''),
+    software: String(r['Software'] ?? ''),
     modulo: r['Módulo'] || null,
     tipo: r['Tipo'] || null,
     vigencia: r['Vigencia'] || null,
